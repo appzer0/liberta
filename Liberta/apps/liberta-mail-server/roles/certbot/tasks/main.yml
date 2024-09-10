@@ -1,0 +1,12 @@
+--- 
+- name: Check if fullchain certificate already exists
+  stat:
+    path: "/etc/letsencrypt/live/{{mail_fqdn}}/fullchain.pem"
+  register: fullchain_path
+
+# Auto-renewal is already handled by systemd's certbot.timer
+- name: "Generate Let's Encrypt cert for our 3 domains"
+  shell: "certbot certonly --webroot -w {{ nginx_webroot }} --agree-tos --no-eff-email --email {{ email_contact }} -d {{ mail_fqdn }} -d {{ mail_domain }} -d {{ webmail_domain }}"
+  args:
+    executable: /bin/bash
+  when: not fullchain_path.stat.exists

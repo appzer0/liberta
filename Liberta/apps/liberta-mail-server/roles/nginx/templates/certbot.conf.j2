@@ -1,0 +1,41 @@
+# {{mail_fqdn}}
+server {
+	listen 80;
+	listen [::]:80;
+	server_name {{mail_fqdn}} {{mail_domain}} {{webmail_domain}};
+	###rewrite ^ https://$server_name$request_uri? permanent;
+	
+	access_log /var/log/nginx/{{mail_fqdn}}_access.log;
+	error_log /var/log/nginx/{{mail_fqdn}}_error.log warn;
+	
+
+	location ^~ /.well-known/ {
+		default_type "text/plain";
+		root {{nginx_webroot}};
+		allow all;
+		index index.html;
+		try_files $uri =404;
+	}
+
+	location / {
+		index index.html;
+		try_files $uri =404;
+		#return 301 https://$host$request_uri;
+	}
+}
+
+####server {
+###	listen 443 ssl;
+###	listen [::]:443 ssl;
+###	server_name {{mail_fqdn}};
+###	root /var/www/{{mail_fqdn}};
+###	
+###	ssl_certificate /etc/letsencrypt/live/{{mail_fqdn}}/fullchain.pem;
+###	ssl_certificate_key /etc/letsencrypt/live/{{mail_fqdn}}/privkey.pem;
+###	ssl_session_cache shared:SSL:10m;
+###	
+###	client_max_body_size 100M;
+###	
+###	access_log /var/log/nginx/{{mail_fqdn}}_access.log;
+###	error_log /var/log/nginx/{{mail_fqdn}}_error.log;
+###}

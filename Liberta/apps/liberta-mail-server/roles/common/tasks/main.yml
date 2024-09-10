@@ -1,0 +1,21 @@
+---
+- name: Enable NTP
+  template: 
+    src: "timesyncd.conf.j2"
+    dest: "/etc/systemd/timesyncd.conf"
+
+- name: Set timezone
+  command:
+    cmd: "timedatectl set-timezone Europe/Paris "
+
+- name: Make sure no nameservers are in resolv.conf
+  lineinfile:
+    path: "/etc/resolv.conf"
+    state: absent
+    regexp: '^nameserver.*$'
+
+- name: Add our local DNS setting for BIND9
+  lineinfile:
+    path: "/etc/resolv.conf"
+    line: "nameserver 127.0.0.1"
+

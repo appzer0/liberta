@@ -1,0 +1,5 @@
+user = {{ mysql_mailserver_dbusername }}
+password = {{ mysql_mailserver_dbpasswd }}
+dbname = {{ mysql_mailserver_dbname }}
+hosts = {{ mysql_mailserver_dbhost }}
+query = SELECT `email` FROM users WHERE email='%s';

@@ -1,0 +1,62 @@
+---
+- name: Enable rspamd extended headers
+  copy:
+    src: milter_headers.conf
+    dest: /etc/rspamd/override.d/milter_headers.conf
+
+- name: Copy Bayes classifier rates for autolearn
+  copy:
+    src: classifier-bayes.conf
+    dest: /etc/rspamd/override.d/classifier-bayes.conf
+
+- name: Enable rspamd redis backend
+  template:
+    src: redis.conf.j2
+    dest: /etc/rspamd/local.d/redis.conf
+
+- name: First hash the rspamd web interface password
+  shell: "rspamadm pw -p {{ rspamd_web_access }}"
+  register: rspamd_web_access_hashed
+
+- name: Set rspamd admin web interface password
+  template:
+    src: worker-controller.conf.j2
+    dest: /etc/rspamd/local.d/worker-controller.inc
+  notify: restart rspamd
+
+- name: Copy DKIM signing conf file
+  copy:
+    src: dkim_signing.conf
+    dest: /etc/rspamd/local.d/dkim_signing.conf
+
+- name: Create selector file
+  template:
+    src: dkim_selectors.map.j2
+    dest: /etc/rspamd/dkim_selectors.map
+  notify: restart rspamd
+
+- name: Create dkim directory
+  file: 
+    path: /var/lib/rspamd/dkim/
+    state: directory
+    mode: '0755'
+
+- name: Check if DKIM key already exists by registering dkim_file variable
+  stat:
+    path: /var/lib/rspamd/dkim/{{ mail_domain }}.{{ mail_dkim_selector }}.key
+  register: dkim_file
+
+- name: Create DKIM key when dkim_file is absent
+  block: 
+    - name : Create DKIM keys
+      shell : rspamadm dkim_keygen -d {{ mail_domain }} -s {{ mail_dkim_selector }} -k /var/lib/rspamd/dkim/{{ mail_domain }}.{{ mail_dkim_selector }}.key
+      register: dkim_key
+    - name : Then write the DKIM output PUBLIC key in a file
+      copy : 
+        content : "{{ dkim_key.stdout }}"
+        dest: /var/lib/rspamd/dkim/{{ mail_domain }}.{{ mail_dkim_selector }}.dnstxtentry.txt
+  when : not dkim_file.stat.exists
+
+- name: Now display the DKIM public key text for DNS entry
+  shell : cat /var/lib/rspamd/dkim/{{ mail_domain }}.{{ mail_dkim_selector }}.dnstxtentry.txt
+  register : dkim_public

@@ -1,0 +1,26 @@
+---
+- name: install packages
+  apt:
+    update_cache: yes
+    name:
+      - certbot
+      - pwgen
+      - postfix
+      - postfix-mysql
+      - dovecot-mysql
+      - dovecot-imapd
+      - dovecot-lmtpd
+      - dovecot-managesieved
+      - rspamd
+      - fail2ban
+      - ca-certificates
+      - mutt
+      - nginx
+      - mariadb-client
+      - nfs-commmon
+      - bind9
+      - bind9-dnsutils
+      - bind9-host
+      - bind9-utils
+
+

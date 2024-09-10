@@ -1,0 +1,24 @@
+include "/etc/bind/rndc.key";
+
+acl goodclients {
+	{{ dns_trusty_network }};
+	localhost;
+	localnets;
+};
+
+options {
+	directory "/var/cache/bind";
+	recursion yes;
+	allow-query { goodclients; };
+	forwarders {
+		{{ dns_forwarded_ipv4_1 }};
+		{{ dns_forwarded_ipv4_2 }};
+		{{ dns_forwarded_ipv6_1 }};
+		{{ dns_forwarded_ipv6_2 }};
+	};
+	forward only;
+	dnssec-validation yes;
+	
+	auth-nxdomain no;    # conform to RFC1035
+	listen-on-v6 { any; };
+};

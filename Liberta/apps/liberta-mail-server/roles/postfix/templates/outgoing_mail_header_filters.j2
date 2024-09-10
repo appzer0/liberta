@@ -1,0 +1,12 @@
+# Nettoyage des entetes pour anonymisation : 
+/^\s*Received:[^\n]*(.*)/         REPLACE Received: from authenticated user ({{ mail_fqdn }})$1
+
+# Suppression d'autres informations sensibles :
+/^\s*User-Agent:/        IGNORE
+/^\s*X-Enigmail:/        IGNORE
+/^\s*X-Mailer:/          IGNORE
+/^\s*X-Originating-IP:/  IGNORE
+/^\s*X-Pgp-Agent:/       IGNORE
+
+# On evite les fuites de user-agent possibles via Mime-Version :
+/^\s*(Mime-Version:\s*[0-9\.]+)\s.+/  REPLACE $1

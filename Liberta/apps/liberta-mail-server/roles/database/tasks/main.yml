@@ -1,0 +1,89 @@
+---
+- name: Install python3-pymysql, needed by ansible to deal with MySQL databases
+  apt:
+    update_cache: yes
+    name:
+      - python3-pymysql
+
+# Grant user and create database in the first place on the mysql server:
+# mysql> create database {{ mysql_mailserver_dbname }};
+# mysql> grant all privileges on {{ mysql_mailserver_dbname }}.* to '{{ mysql_mailserver_dbname }}'@'%' identified by '{{ mysql_mailserver_dbpasswd }}';
+# mysql> flush privileges;
+- name: Make sure  MySQL database exists
+  community.mysql.mysql_db:
+    login_host: {{ mysql_mailserver_dbhost }}
+    login_user: {{ mysql_mailserver_dbusername }}
+    login_password: {{ mysql_mailserver_dbpasswd }}
+    name: {{ mysql_mailserver_dbname }}
+    state: present
+  register: database
+
+- name: Create and populate MySQL database
+  when: database.changed
+  block:
+    - name: Copy MySQL database schema.sql into /tmp
+      copy:
+        src: schema.sql
+        dest: /tmp
+    - name: Import SQL schema into database
+      community.mysql.mysql_db:
+         login_host: {{ mysql_mailserver_dbhost }}
+         login_user: {{ mysql_mailserver_dbusername }}
+         login_password: {{ mysql_mailserver_dbpasswd }}
+         login_db: {{ mysql_mailserver_dbname }}
+         state: import
+         target: /tmp/schema.sql
+    - name: Generate managed domains and a few nasty domains to throttle
+      vars:
+        domaindata:
+          - { "1", "liberta.email", "" }
+          - { "2", "liberta.vip", "" }
+          - { "", "orange.fr", "slow:" }
+          - { "", "yahoo.fr", "yahoo:" }
+          - { "", "yahoo.com", "yahoo:" }
+          - { "", "wanadoo.fr", "slow:" }
+          - { "", "orange.com", "slow:" }
+          - { "", "gmail.com", "slow:" }
+          - { "", "gmail.fr", "slow:" }
+          - { "", "hotmail.com", "slow:" }
+          - { "", "hotmail.fr", "slow:" }
+          - { "", "outlook.com", "slow:" }
+          - { "", "outlook.fr", "slow:" }
+          - { "", "live.com", "slow:" }
+          - { "", "live.fr", "slow:" }
+      tasks:
+        - name: Add rows out of a loop to domain table
+          community.mysql.mysql_db:
+            login_host: {{ mysql_mailserver_dbhost }}
+            login_user: {{ mysql_mailserver_dbusername }}
+            login_password: {{ mysql_mailserver_dbpasswd }}
+            login_db: {{ mysql_mailserver_dbname }}
+          state: present
+          query: "INSERT INTO `domain` (`id`, `domain`, `transport`) VALUES (%s, %s, %s)"
+          query_args: "{{ item }}"
+          loop: "{{ domaindata }}"
+    - name: Generate a few reserved mail accounts
+      vars:
+        # Generated SHA512 hashed passwords with: doveadm pw -s SHA512-CRYPT -p <password>
+        usersdata:
+          - { "", "1", "mailadmin@liberta.email", "{SHA512-CRYPT}$6$vfncUIlA3mRk3oMS$nWoaOpdGZcVBYfyim7WWPNbZpGGH47/zTPEICMlyGfMgfASw7AanwgUSYHS2sgDSIfPD7TB8ceXPGkVuKoalh0", "10G", "@!M!@", "1" }
+          - { "", "1", "postmaster@liberta.email", "{SHA512-CRYPT}$6$fk1IaOEI8pG3Q7mw$moX6HOI5W.nk5G9zt8lsC/zo6C1MOvgIiQr6BmHhF1IL0eIKN8sKMC6TyGIHPMy/Ai1IASuY/GV/aAKAne3xd0", "10G", "!M!", "1" }
+          - { "", "1", "admin@liberta.email", "{SHA512-CRYPT}$6$PuLuRVT.11vpL/.i$e2eN.0EFAbNSoxFufa25KllliDOXrWqaBPKgDviG8HK0e3yBZFyOgexW3jInAtNBvzf62WVIpZXRrGeUIrrDW.", "10G", "!B!", "1" }
+          - { "", "1", "root@liberta.email", "{SHA512-CRYPT}$6$Zl13Iue1ztlianWZ$rQbF9Ynjwaf7m24vZYISaTSJrXFQ88jXqk6ts9AaVb4CBxnCLy.z1h3/p2quPNF0aexJj9tHqK4mnzpqdjWEM/", "10G", "!BBB!", "1" }
+          - { "", "1", "abuse@liberta.email", "{SHA512-CRYPT}$6$l9aNzR/S0RCF2bpf$KoB0RjUT/PVml5LJ2qnAFFBTC3hH/YYnYgpWyu//9669a19Krq9kqW0syM5mSRnogQhn4A9lOCke2/SPvxwHJ1", "10G", "!MMM!", "1" }
+          - { "", "1", "liberta@liberta.email", "{SHA512-CRYPT}$6$Zl13Iue1ztlianWZ$rQbF9Ynjwaf7m24vZYISaTSJrXFQ88jXqk6ts9AaVb4CBxnCLy.z1h3/p2quPNF0aexJj9tHqK4mnzpqdjWEM/", "10G", "!BBB!", "1" }
+          - { "", "1", "appzer0@liberta.email", "{SHA512-CRYPT}$6$Zl13Iue1ztlianWZ$rQbF9Ynjwaf7m24vZYISaTSJrXFQ88jXqk6ts9AaVb4CBxnCLy.z1h3/p2quPNF0aexJj9tHqK4mnzpqdjWEM/", "10G", "!BBB!", "1" }
+          - { "", "1", "libertadmin@liberta.email", "{SHA512-CRYPT}$6$Zl13Iue1ztlianWZ$rQbF9Ynjwaf7m24vZYISaTSJrXFQ88jXqk6ts9AaVb4CBxnCLy.z1h3/p2quPNF0aexJj9tHqK4mnzpqdjWEM/", "10G", "!BBB!", "1" }
+          - { "", "1", "info@liberta.email", "{SHA512-CRYPT}$6$Zl13Iue1ztlianWZ$rQbF9Ynjwaf7m24vZYISaTSJrXFQ88jXqk6ts9AaVb4CBxnCLy.z1h3/p2quPNF0aexJj9tHqK4mnzpqdjWEM/", "10G", "!BBB!", "1" }
+          - { "", "1", "liberta@liberta.email", "{SHA512-CRYPT}$6$Zl13Iue1ztlianWZ$rQbF9Ynjwaf7m24vZYISaTSJrXFQ88jXqk6ts9AaVb4CBxnCLy.z1h3/p2quPNF0aexJj9tHqK4mnzpqdjWEM/", "10G", "!BBB!", "1" }
+      tasks:
+        - name: Add rows out of a loop to users table
+          community.mysql.mysql_db:
+            login_host: {{ mysql_mailserver_dbhost }}
+            login_user: {{ mysql_mailserver_dbusername }}
+            login_password: {{ mysql_mailserver_dbpasswd }}
+            login_db: {{ mysql_mailserver_dbname }}
+          state: present
+          query: "INSERT INTO `users` (`id`, `domain_id`, `email`, `crypt`, `quota`, `note`, `active`) VALUES (%s, %s, %s, %s, %s, %s, %s)"
+          query_args: "{{ item }}"
+          loop: "{{ usersdata }}"

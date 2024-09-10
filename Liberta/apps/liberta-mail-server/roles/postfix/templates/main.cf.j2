@@ -1,0 +1,182 @@
+# Configuration Postfix
+# Debian 12+ - Postfix 3.7+
+
+# Aucune compatibilité avec les anciennes versions de Postfix :
+compatibility_level = 9999
+
+# Les paramètres les plus importants de Postfix :
+mydomain = {{ mail_domain }}
+myhostname = {{ mail_fqdn }}
+myorigin = $mydomain
+mydestination = localhost
+
+# Protocoles IP et interfaces :
+inet_protocols = ipv4, ipv6
+inet_interfaces = all
+
+# Réseaux autorises sans authentification : LAN, IP publiques :
+mynetworks = {{ ipv4_address }} {{ ipv6_address }} {{ lan_ipv4 }} {{ loopback_ipv4 }} {{ loopback_ipv6 }}
+
+# Message d'accueil pour SMTP :
+smtpd_banner = "$myhostname ESMTP Bonjour et bienvenue sur le serveur mail de {{ pretty_domain }} - Hi and welcome on {{ pretty_domain }}'s mail server. {{ general_website_url }}"
+biff = no
+append_dot_mydomain = no
+readme_directory = no
+
+# Chaque user a un Maildir :
+home_mailbox = Maildir/
+
+# Emplacement de la file d'attente :
+queue_directory = /var/spool/postfix
+
+# On previent quand les mails tardent et on raccourcit les lifetime :
+delay_warning_time = 3h
+maximal_queue_lifetime = 2d
+bounce_queue_lifetime = 1d
+
+# Authentification SASL, pas d'entete avec l'utilisateur authentifié et
+# prise en charge des Outlook pourris qui ne respectent rien en ce bas
+# monde (broken_sasl_auth_clients = yes):
+smtpd_sasl_path = private/auth
+smtpd_sasl_type = dovecot
+smtpd_sasl_auth_enable = yes
+smtpd_sasl_security_options = noanonymous
+smtpd_sasl_authenticated_header = no
+broken_sasl_auth_clients = yes
+
+# Configuration SSL/TLS :
+smtp_tls_CAfile = /etc/ssl/certs/ca-certificates.crt
+smtpd_tls_CAfile=/etc/letsencrypt/live/{{ mail_fqdn }}/fullchain.pem
+smtpd_tls_cert_file=/etc/letsencrypt/live/{{ mail_fqdn }}/cert.pem
+smtpd_tls_key_file=/etc/letsencrypt/live/{{ mail_fqdn }}/privkey.pem
+smtpd_tls_session_cache_database = btree:${data_directory}/smtpd_scache
+smtp_tls_session_cache_database = btree:${data_directory}/smtp_scache
+smtp_tls_security_level = may
+smtpd_tls_security_level = may
+smtpd_tls_loglevel = 0
+smtpd_tls_received_header = yes
+smtp_tls_note_starttls_offer = yes
+
+# TLS 1.2 minimum :
+smtp_tls_mandatory_protocols = >=0x0303
+smtpd_tls_mandatory_protocols = >=TLSv1.2
+
+# Algorithmes TLS forts uniquement :
+smtp_tls_mandatory_ciphers = high
+smtpd_tls_mandatory_ciphers = high
+smtp_tls_mandatory_exclude_ciphers = aNULL,DES,3DES,MD5,DES+MD5,RC4
+smtpd_tls_mandatory_exclude_ciphers = aNULL,DES,3DES,MD5,DES+MD5,RC4
+
+### Config générale, collection de restrictions et blacklists ###
+
+# Restrictions sur le HELO :
+smtpd_helo_required = yes
+smtpd_delay_reject = yes
+smtpd_helo_restrictions =
+	permit_mynetworks,
+	permit_sasl_authenticated,
+	reject_non_fqdn_helo_hostname,
+	reject_invalid_helo_hostname,
+	reject_unknown_helo_hostname,
+	permit
+
+# Restriction sur VRFY pour éviter les attaques devinant les boites existantes :
+disable_vrfy_command=yes
+
+# Protection contre les attaques "SMTP smuggling" :
+smtpd_forbid_bare_newline = yes
+smtpd_forbid_bare_newline_exclusions = $mynetworks
+
+# On n'est pas SMTP Open Relay sur la planète :
+smtpd_relay_restrictions =
+	permit_mynetworks,
+	permit_sasl_authenticated,
+	reject_unauth_destination
+
+# Restrictions sur l'expediteur :
+smtpd_sender_restrictions =
+	permit_mynetworks,
+	permit_sasl_authenticated,
+	reject_non_fqdn_sender,
+	reject_unknown_sender_domain,
+	reject_authenticated_sender_login_mismatch,
+	reject_rhsbl_sender dbl.spamhaus.org,
+	permit
+
+# Restrictions sur les clients avec blacklists publics de réputation :
+smtpd_client_restrictions =
+	permit_mynetworks,
+	permit_sasl_authenticated,
+	check_client_access hash:/etc/postfix/rbl_override,
+	reject_rbl_client zen.spamhaus.org,
+	reject_rhsbl_helo dbl.spamhaus.org,
+	reject_rhsbl_sender dbl.spamhaus.org,
+	permit
+
+# Restrictions sur le destinataire + gestion des quotas via Dovecot et son plugin quota-status :
+smtpd_recipient_restrictions =
+	permit_mynetworks,
+	permit_sasl_authenticated,
+	reject_unauth_destination,
+	reject_unauth_pipelining,
+	reject_non_fqdn_recipient,
+	reject_unknown_recipient_domain,
+	warn_if_reject,
+	check_policy_service unix:private/quota-status,
+	permit
+
+# Le delimiteur pour beneficier d'alias dynamiques ("nomdelaboite.sitelouche@{{ mail_fqdn }}")
+recipient_delimiter = .
+
+# Alias mail vers utilisateur UNIX (on ne s'en sert pas, voir virtual_alias_maps).
+# Inutile, mais permet de supprimer un avertissement :
+alias_maps = hash:/etc/aliases
+alias_database = hash:/etc/aliases
+
+# Notre fichier d'alias :
+virtual_alias_maps = mysql:/etc/postfix/alias-sql.cf
+
+# Taille maximale des messages à 40 Mo (un peu plus que le quota de Dovecot) :
+mailbox_size_limit = 41943040
+
+# Notre transport contenant les domaines pour lesquels on envoie/délivre des mails
+# et les règles de transport, de login relai et de limitation d'envoi (smtp:IP_SERVEUR_SMTP, yahoo:, orange:) :
+virtual_transport = lmtp:unix:private/dovecot-lmtp
+transport_maps = mysql:/etc/postfix/transport-sql.cf
+virtual_mailbox_maps = mysql:/etc/postfix/mailboxlogin-sql.cf
+smtpd_sender_login_maps = mysql:/etc/postfix/mailboxlogin-sql.cf
+virtual_mailbox_domains = mysql:/etc/postfix/domains-sql.cf
+virtual_mailbox_base = /mail_data
+
+# Configuration de rmilter pour passer les mails à rspamd :
+milter_default_action = accept
+milter_protocol = 6
+smtpd_milters = inet:127.0.0.1:11332
+non_smtpd_milters = inet:127.0.0.1:11332
+milter_mail_macros = i {mail_addr} {client_addr} {client_name} {auth_authen}
+
+# Limitations générales d'envoi:
+dovecot_destination_recipient_limit = 1
+smtpd_recipient_limit = 50
+smtpd_recipient_overshoot_limit = 51
+smtpd_hard_error_limit = 20
+smtpd_client_recipient_rate_limit = 50
+smtpd_client_connection_rate_limit = 10
+smtpd_client_message_rate_limit = 25
+default_extra_recipient_limit = 50
+duplicate_filter_limit = 50
+default_destination_recipient_limit = 50
+default_destination_concurrency_limit = 10
+smtp_destination_recipient_limit = $default_destination_recipient_limit
+message_size_limit = 50000000
+
+# Limitations d'envoi pour les serveurs restrictifs (Orange, Gmail, Microsoft) :
+slow_destination_concurrency_limit = 2
+slow_destination_recipient_limit = 20
+slow_destination_rate_delay = 3s
+
+# Limitations pour Yahoo :
+yahoo_initial_destination_concurrency = 1
+yahoo_destination_concurrency_limit = 4
+yahoo_destination_recipient_limit = 2
+yahoo_destination_rate_delay = 1s

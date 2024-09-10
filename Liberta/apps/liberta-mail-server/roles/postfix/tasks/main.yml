@@ -1,0 +1,35 @@
+---
+- name: Install Postfix config files
+  template: 
+    src: "{{ item }}.j2"
+    dest: "/etc/postfix/{{ item }}"
+    mode: 0640
+  with_items:
+  - alias-sql.cf
+  - domains-sql.cf
+  - mailboxlogin-sql.cf
+  - main.cf
+  - master.cf
+  - transport-sql.cf
+  - outgoing_mail_header_filters
+
+- name: Create empty flat files needed by Postfix
+  ansible.builtin.file:
+    path: "/etc/postfix/{{ item }}"
+    state: touch
+    mode: 640
+  with_items:
+    - transport
+    - rbl_override
+    - aliases
+
+- name: Run postmap on all files for postfix to parse:
+  command:
+    cmd: "postmap /etc/postfix/{{ item }}"
+    creates: "/etc/postfix/{{ item }}.db"
+  with_items:
+    - transport
+    - rbl_override
+    - aliases
+  notify: restart postfix
+
