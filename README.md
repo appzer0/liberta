@@ -13,7 +13,7 @@ NOT TO USE IN PRODUCTION
 
 ## French
 
-Ce dépôt a pour objectif de contenir toues les applications et l'infrastructure de Liberta.
+Ce dépôt a pour objectif de contenir toutes les applications et l'infrastructure de Liberta.
 
 apps/liberta-mail-server: ce dépôt a pour objectif de déployer un serveur de courriel complet sur l'infrastructure de Liberta.
 Il utilise Tofu (le fork compatible Terraform) et Ansible.
