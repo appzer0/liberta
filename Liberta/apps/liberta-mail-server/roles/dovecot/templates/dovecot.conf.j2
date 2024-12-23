@@ -6,12 +6,12 @@ mail_plugins = $mail_plugins quota
 
 # Configuration IMAP (désactivé) et IMAPS :
 service imap-login {
-        inet_listener imap {
-                port = 0
-        }
-        inet_listener imaps {
-                port = 993
-        }
+	inet_listener imap {
+		port = 0
+	}
+	inet_listener imaps {
+		port = 993
+	}
 }
 
 # Protocoles IMAP : contournement de certains bugs et contraintes + quota :
@@ -22,10 +22,10 @@ protocol imap {
 
 # Protocoles LDA/LMTP : activation quota + règles Sieve de déplacement des Spams :
 protocol lda {
-        mail_plugins = $mail_plugins quota sieve
+	mail_plugins = $mail_plugins quota sieve
 }
 protocol lmtp {
-        mail_plugins = $mail_plugins quota sieve
+	mail_plugins = $mail_plugins quota sieve
 }
 
 # Emplacement des boites e-mail :
@@ -50,21 +50,24 @@ disable_plaintext_auth = no
 # Message d'accueil :
 login_greeting = "Mail Delivery Agent OK."
 
-# Chemin et permissions pour l'authentification :
+# Chemin et permissions pour l'authentification +
+# vsz_limit à 2 Go max pour pouvoir manipuler de fortes
+# fonctions de chiffrement de clefs comme Argon2 :
 service auth {
-        unix_listener /var/spool/postfix/private/auth {
-                group = postfix
-                user = postfix
-                mode = 0666
-        }
+	unix_listener /var/spool/postfix/private/auth {
+		group = postfix
+		user = postfix
+		mode = 0666
+	}
+	vsz_limit = 2G
 }
 
 service lmtp {
-        unix_listener /var/spool/postfix/private/dovecot-lmtp {
-                group = postfix
-                user = postfix
-                mode = 0666
-        }
+	unix_listener /var/spool/postfix/private/dovecot-lmtp {
+		group = postfix
+		user = postfix
+		mode = 0666
+	}
 }
 
 # ID par défaut des utilisateurs virtuels :
@@ -73,16 +76,16 @@ mail_gid=5000
 
 # Authentification via la base MySQL :
 passdb {
-        driver = sql
-        args = /etc/dovecot/dovecot-sql.conf.ext
+	driver = sql
+	args = /etc/dovecot/dovecot-sql.conf.ext
 }
 userdb {
-        driver = prefetch
+	driver = prefetch
 }
 
 userdb {
-        driver = sql
-        args = /etc/dovecot/dovecot-sql.conf.ext
+	driver = sql
+	args = /etc/dovecot/dovecot-sql.conf.ext
 }
 
 # Le quota par défaut si aucun paramètre ne figure dans le fichier des users
@@ -142,28 +145,27 @@ namespace inbox {
 	mailbox "Envoyés" { 
 		special_use = \Sent
 		auto = subscribe
-        }
+	}
 	mailbox "Pourriels" {
 		special_use = \Junk
 		auto = subscribe
 		autoexpunge = 60d
-        }
+	}
 	mailbox "Brouillons" {
 		special_use = \Drafts
 		auto = subscribe
-        }
+	}
 	mailbox "Corbeille" { 
 		special_use = \Trash
 		auto = subscribe
 		autoexpunge = 60d
-        }
+	}
 	mailbox "Archives" {
 		special_use = \Archive
 		auto = subscribe
-        }
+	}
 	inbox = yes
 }
 
 # On les abonne aussi aux sous-dossiers perso :
 lda_mailbox_autosubscribe = yes
-
