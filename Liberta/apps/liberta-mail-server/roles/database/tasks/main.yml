@@ -64,18 +64,18 @@
           loop: "{{ domaindata }}"
     - name: Generate a few reserved mail accounts
       vars:
-        # Generated SHA512 hashed passwords with: doveadm pw -s SHA512-CRYPT -p <password>
+        # Generated libsodium's ARGON2ID hashed passwords with: <space>doveadm pw -s ARGON2ID -p <password>
         usersdata:
-          - { "", "1", "mailadmin@liberta.email", "{SHA512-CRYPT}$6$vfncUIlA3mRk3oMS$nWoaOpdGZcVBYfyim7WWPNbZpGGH47/zTPEICMlyGfMgfASw7AanwgUSYHS2sgDSIfPD7TB8ceXPGkVuKoalh0", "10G", "@!M!@", "1" }
-          - { "", "1", "postmaster@liberta.email", "{SHA512-CRYPT}$6$fk1IaOEI8pG3Q7mw$moX6HOI5W.nk5G9zt8lsC/zo6C1MOvgIiQr6BmHhF1IL0eIKN8sKMC6TyGIHPMy/Ai1IASuY/GV/aAKAne3xd0", "10G", "!M!", "1" }
-          - { "", "1", "admin@liberta.email", "{SHA512-CRYPT}$6$PuLuRVT.11vpL/.i$e2eN.0EFAbNSoxFufa25KllliDOXrWqaBPKgDviG8HK0e3yBZFyOgexW3jInAtNBvzf62WVIpZXRrGeUIrrDW.", "10G", "!B!", "1" }
-          - { "", "1", "root@liberta.email", "{SHA512-CRYPT}$6$Zl13Iue1ztlianWZ$rQbF9Ynjwaf7m24vZYISaTSJrXFQ88jXqk6ts9AaVb4CBxnCLy.z1h3/p2quPNF0aexJj9tHqK4mnzpqdjWEM/", "10G", "!BBB!", "1" }
-          - { "", "1", "abuse@liberta.email", "{SHA512-CRYPT}$6$l9aNzR/S0RCF2bpf$KoB0RjUT/PVml5LJ2qnAFFBTC3hH/YYnYgpWyu//9669a19Krq9kqW0syM5mSRnogQhn4A9lOCke2/SPvxwHJ1", "10G", "!MMM!", "1" }
-          - { "", "1", "liberta@liberta.email", "{SHA512-CRYPT}$6$Zl13Iue1ztlianWZ$rQbF9Ynjwaf7m24vZYISaTSJrXFQ88jXqk6ts9AaVb4CBxnCLy.z1h3/p2quPNF0aexJj9tHqK4mnzpqdjWEM/", "10G", "!BBB!", "1" }
-          - { "", "1", "appzer0@liberta.email", "{SHA512-CRYPT}$6$Zl13Iue1ztlianWZ$rQbF9Ynjwaf7m24vZYISaTSJrXFQ88jXqk6ts9AaVb4CBxnCLy.z1h3/p2quPNF0aexJj9tHqK4mnzpqdjWEM/", "10G", "!BBB!", "1" }
-          - { "", "1", "libertadmin@liberta.email", "{SHA512-CRYPT}$6$Zl13Iue1ztlianWZ$rQbF9Ynjwaf7m24vZYISaTSJrXFQ88jXqk6ts9AaVb4CBxnCLy.z1h3/p2quPNF0aexJj9tHqK4mnzpqdjWEM/", "10G", "!BBB!", "1" }
-          - { "", "1", "info@liberta.email", "{SHA512-CRYPT}$6$Zl13Iue1ztlianWZ$rQbF9Ynjwaf7m24vZYISaTSJrXFQ88jXqk6ts9AaVb4CBxnCLy.z1h3/p2quPNF0aexJj9tHqK4mnzpqdjWEM/", "10G", "!BBB!", "1" }
-          - { "", "1", "liberta@liberta.email", "{SHA512-CRYPT}$6$Zl13Iue1ztlianWZ$rQbF9Ynjwaf7m24vZYISaTSJrXFQ88jXqk6ts9AaVb4CBxnCLy.z1h3/p2quPNF0aexJj9tHqK4mnzpqdjWEM/", "10G", "!BBB!", "1" }
+          - { "", "1", "mailadmin@liberta.email", "{ARGON2ID}$argon2id$v=19$m=65536,t=3,p=1$JX7a/91Q2ZNmPeFhlJ1c1w$GpULDlY7WH5WUY1uzGuxIfa84N3efNPHNIOpKahX26M", "10G", "@!M!@", "1" }
+          - { "", "1", "postmaster@liberta.email", "{ARGON2ID}$argon2id$v=19$m=65536,t=3,p=1$udeJKO26DAfqPpeiqgUAOw$hxk9OtvXjXhKyTgHxVaTmi8AijkA5OoHLHbiiOgj29g", "10G", "!M!", "1" }
+          - { "", "1", "admin@liberta.email", "{ARGON2ID}$argon2id$v=19$m=65536,t=3,p=1$b23pMd/fDHOmZUwYccWzNQ$F1dihKzLW/PjOX0N7z/RnQV1XZ7BNaHn1KfIaPmJDFE", "10G", "!B!", "1" }
+          - { "", "1", "root@liberta.email", "{ARGON2ID}$argon2id$v=19$m=65536,t=3,p=1$ArC504cocbCR3CTcy9pK5Q$5aTid+TCm3qBd/6+KOXUPQgmwbjxqcYQ7/hnjXSCcss", "10G", "!BBB!", "1" }
+          - { "", "1", "abuse@liberta.email", "{ARGON2ID}$argon2id$v=19$m=65536,t=3,p=1$BLaU9+MAYLWbAOa44waFDw$LyZiVsovAf+hpwW6wTW3j19kQrstYjBf65fDZUI/RNI", "10G", "!MMM!", "1" }
+          - { "", "1", "liberta@liberta.email", "{ARGON2ID}$argon2id$v=19$m=65536,t=3,p=1$OyN7Ghl0lWV+sdCk5Iqvow$jwCz7cgF7vNkZzNg+1paXH9XjRuf12iH7z63jvj2spo", "10G", "!BBB!", "1" }
+          - { "", "1", "appzer0@liberta.email", "{ARGON2ID}$argon2id$v=19$m=65536,t=3,p=1$nH2Nnn+QNEXzYjVdbRHd1g$Fmxc8kKMo7bmADU74HzsENCZQi0TfckB8sny51NTh7Q", "10G", "!BBB!", "1" }
+          - { "", "1", "libertadmin@liberta.email", "{ARGON2ID}$argon2id$v=19$m=65536,t=3,p=1$O/AqAm0Z0UVJRJdUUpZmJA$qzkWpgbiQX10IzOVDOwQqGGlfcjf5CUaIBChTEadz44", "10G", "!BBB!", "1" }
+          - { "", "1", "info@liberta.email", "{ARGON2ID}$argon2id$v=19$m=65536,t=3,p=1$8UxWFelI9GwkQr8BxYcbvg$W2a/M0mjC7dY9q70e/mTthfuSvSB7E0zn4hDcnP9F8M", "10G", "!BBB!", "1" }
+          - { "", "1", "liberta@liberta.email", "{ARGON2ID}$argon2id$v=19$m=65536,t=3,p=1$/k+sSIrjR3xXqckR+lU+cw$7jo8U3URCbH20ghVLChPEz0PPxFoer6qyKyORfQOBTk", "10G", "!BBB!", "1" }
       tasks:
         - name: Add rows out of a loop to users table
           community.mysql.mysql_db:
