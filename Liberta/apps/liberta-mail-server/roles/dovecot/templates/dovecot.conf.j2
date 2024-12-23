@@ -62,6 +62,15 @@ service auth {
 	vsz_limit = 2G
 }
 
+service auth-worker {
+	unix_listener /var/spool/postfix/private/auth-worker {
+		group = postfix
+		user = postfix
+		mode = 0666
+	}
+	vsz_limit = 2G
+}
+
 service lmtp {
 	unix_listener /var/spool/postfix/private/dovecot-lmtp {
 		group = postfix
