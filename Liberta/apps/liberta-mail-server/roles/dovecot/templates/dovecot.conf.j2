@@ -120,26 +120,21 @@ plugin {
 	imapsieve_mailbox2_before = file:/etc/dovecot/sieve/learn-ham.sieve
 }
 
-service quota-status {
-	executable = quota-status -p postfix
-	unix_listener /var/spool/postfix/private/quota-status {
-		user = postfix
-	}
-	client_limit = 1
-}
-
 # Format des logs :
 login_log_format_elements = user=<%u> method=%m rip=%r lip=%l mpid=%e %c
 login_log_format = %$: %s
 deliver_log_format = msgid=%m: from=%f subject=%s size=%p %$
 
-# Stockage des mails via NFS (stockage ZFS) + indexation :
-mail_nfs_storage = yes
-lock_method = dotlock
-dotlock_use_excl = yes
+# Stockage des mails via NFS (stockage ZFS), paramètres recommandés
+# par la documentation de Dovecot :
 mmap_disable=yes
 mail_fsync=always
-mail_nfs_index = yes
+mail_nfs_index = no
+mail_nfs_storage = no
+
+# Méthode de verrouillage des fichiers :
+lock_method = dotlock
+dotlock_use_excl = yes
 
 # On inscrit les utilisateurs à tous les dossiers classiques et on
 # auto-nettoie le Spam et la corbeille (60 jours) :

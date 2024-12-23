@@ -1,5 +1,5 @@
 driver = mysql
-connect = host={{mysql_mailserver_dbhost}} dbname={{mysql_mailserver_dbname}} user={{mysql_mailserver_dbusername}} password={{mysql_mailserver_dbpasswd}}
+connect = host={{ mysql_mailserver_dbhost }} dbname={{ mysql_mailserver_dbname }} user={{ mysql_mailserver_dbusername }} password={{ mysql_mailserver_dbpasswd }}
 default_pass_scheme = SHA512
 
 iterate_query = SELECT `email` AS user FROM users;
