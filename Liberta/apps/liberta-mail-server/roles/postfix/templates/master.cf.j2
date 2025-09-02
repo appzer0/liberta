@@ -44,6 +44,7 @@ mailman   unix  -       n       n       -       -       pipe
 submission inet n       -       -       -       -       smtpd
   -o syslog_name=postfix/submission
   -o smtpd_sasl_auth_enable=yes
+  -o syslog_name=postfix/submission
   -o smtpd_tls_security_level=encrypt
   -o smtpd_tls_auth_only=yes
   -o smtpd_reject_unlisted_recipient=no
