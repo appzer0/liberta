@@ -64,8 +64,8 @@ variable "diskSize" { default = 1024*1024*1024*10 }
 terraform {
   required_providers {
     libvirt = {
-      source = "uyuni-project/libvirt"
-      version = "0.6.11-1"
+      source = "dmacvicar/libvirt"
+      version = "0.8.3"
     }
   }
 }

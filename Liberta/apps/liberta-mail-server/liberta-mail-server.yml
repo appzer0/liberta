@@ -1,0 +1,45 @@
+---
+- hosts: all
+  tasks:
+    - name: "Checking operating system version"
+      assert:
+        that: ansible_distribution_release == 'bookworm'
+        fail_msg: "This Ansible playbook is only supported on Debian Bookworm."
+        success_msg: "Debian Bookworm found."
+
+
+- hosts: all
+  roles:
+    - role: packages
+      tags: packages
+    - role: common
+      tags: common
+    - role: bind9
+      tags: bind9
+    - role: nginx
+      tags: nginx
+    - role: certbot
+      tags: certbot
+    - role: database
+      tags: database
+    - role: postfix
+      tags: postfix
+    - role: dovecot
+      tags: dovecot
+    - role: rspamd
+      tags: rspamd
+
+- hosts: all
+  tasks:
+    - debug:
+        msg:
+          - "Installation complete."
+          - ""
+          - "Domain        : {{ mail_domain }}"
+          - "FQDN          : {{ mail_fqdn }}"
+          - "Public IPv4   : {{ ipv4_address }}"
+          - "Public IPv6   : {{ ipv6_address }}"
+          - "Internal IPv4 : {{ lan_ipv4 }}"
+          - "DKIM selector : {{ mail_dkim_selector }}"
+          - "Mail location : {{ mail_data_rootdir }}"
+
