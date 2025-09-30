@@ -5,8 +5,6 @@
     name:
       - python3-pymysql
 
-# Create database in the first place on the mysql server:
-# mysql> create database "{{ mysql_mailserver_dbname }}";
 - name: Make sure  MySQL database exists
   community.mysql.mysql_db:
     login_host: "{{ mysql_mailserver_dbhost }}"
@@ -15,13 +13,8 @@
     name: "{{ mysql_mailserver_dbname }}"
     state: present
   register: database
-- name: Create user with password, all database privileges
-  community.mysql.mysql_user:
-    state: present
-    name: "{{ mysql_mailserver_dbusername }}"
-    password: "{{ mysql_mailserver_dbpassword }}"
-    priv: '"{{ mysql_mailserver_dbname }}".*:ALL'
-- name: Create and populate MySQL database
+
+- name: Populate MySQL database
   when: database.changed
   block:
     - name: Copy MySQL database schema.sql into /tmp
