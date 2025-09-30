@@ -71,18 +71,4 @@ timesync_fallback_ntp_hosts:
   - "2.debian.pool.ntp.org"
   - "3.debian.pool.ntp.org"
 
-### SENSITIVE ENCRYPTED VARIABLES ###
-  
-# Sensitive data for mysql database access:
-mysql_mailserver_dbusername: "vault"
-mysql_mailserver_dbpasswd: "vault"
-mysql_mailserver_dbname: "vault"
-mysql_mailserver_dbhost: "vault"
-
-# Password for rspamd web interface
-rspamd_web_access: "vault"
-
-# Admin's mailbox account:
-admin_mailbox_username: "vault"
-admin_mailbox_pasword: "vault"
 
