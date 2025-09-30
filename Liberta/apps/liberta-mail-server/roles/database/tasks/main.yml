@@ -5,16 +5,12 @@
     name:
       - python3-pymysql
 
-- name: Debug mysql server host
-  debug:
-    var: mysql_mailserver_dbhost
-
 - name: Make sure MySQL database exists
   community.mysql.mysql_db:
-    login_host: "{{ mysql_mailserver_dbhost }}"
-    login_user: "{{ mysql_mailserver_dbusername }}"
-    login_password: "{{ mysql_mailserver_dbpasswd }}"
-    name: "{{ mysql_mailserver_dbname }}"
+    login_host: "{{ vault_mysql_mailserver_dbhost }}"
+    login_user: "{{ vault_mysql_mailserver_dbusername }}"
+    login_password: "{{ vault_mysql_mailserver_dbpasswd }}"
+    name: "{{ vault_mysql_mailserver_dbname }}"
     state: present
 
 - name: Populate MySQL database
@@ -27,10 +23,10 @@
 
     - name: Import SQL schema into database
       community.mysql.mysql_db:
-        login_host: "{{ mysql_mailserver_dbhost }}"
-        login_user: "{{ mysql_mailserver_dbusername }}"
-        login_password: "{{ mysql_mailserver_dbpasswd }}"
-        db: "{{ mysql_mailserver_dbname }}"
+        login_host: "{{ vault_mysql_mailserver_dbhost }}"
+        login_user: "{{ vault_mysql_mailserver_dbusername }}"
+        login_password: "{{ vault_mysql_mailserver_dbpasswd }}"
+        db: "{{ vault_mysql_mailserver_dbname }}"
         state: import
         target: /tmp/schema.sql
 
@@ -55,10 +51,10 @@
 
     - name: Insert each record into domain table
       community.mysql.mysql_query:
-        login_host: "{{ mysql_mailserver_dbhost }}"
-        login_user: "{{ mysql_mailserver_dbusername }}"
-        login_password: "{{ mysql_mailserver_dbpasswd }}"
-        db: "{{ mysql_mailserver_dbname }}"
+        login_host: "{{ vault_mysql_mailserver_dbhost }}"
+        login_user: "{{ vault_mysql_mailserver_dbusername }}"
+        login_password: "{{ vault_mysql_mailserver_dbpasswd }}"
+        db: "{{ vault_mysql_mailserver_dbname }}"
         query: "INSERT INTO `domain` (`id`, `domain`, `transport`) VALUES (%s, %s, %s)"
         params: "{{ item }}"
       loop: "{{ domaindata }}"
@@ -79,10 +75,10 @@
 
     - name: Add rows out of a loop to users table
       community.mysql.mysql_query:
-        login_host: "{{ mysql_mailserver_dbhost }}"
-        login_user: "{{ mysql_mailserver_dbusername }}"
-        login_password: "{{ mysql_mailserver_dbpasswd }}"
-        db: "{{ mysql_mailserver_dbname }}"
+        login_host: "{{ vault_mysql_mailserver_dbhost }}"
+        login_user: "{{ vault_mysql_mailserver_dbusername }}"
+        login_password: "{{ vault_mysql_mailserver_dbpasswd }}"
+        db: "{{ vault_mysql_mailserver_dbname }}"
         query: "INSERT INTO `users` (`id`, `domain_id`, `email`, `crypt`, `quota`, `note`, `active`) VALUES (%s, %s, %s, %s, %s, %s, %s)"
         params: "{{ item }}"
       loop: "{{ usersdata }}"

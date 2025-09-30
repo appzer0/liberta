@@ -70,5 +70,3 @@ timesync_fallback_ntp_hosts:
   - "1.debian.pool.ntp.org"
   - "2.debian.pool.ntp.org"
   - "3.debian.pool.ntp.org"
-
-
