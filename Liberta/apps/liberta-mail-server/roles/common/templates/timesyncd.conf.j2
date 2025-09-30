@@ -1,4 +1,4 @@
 [Time]
-NTP="{{ timesync_ntp_hosts | join(" ") }}"
-FallbackNTP="{{ timesync_fallback_ntp_hosts | join(" ") }}"
+NTP="{{ timesync_ntp_hosts[*] | join(" ") }}"
+FallbackNTP="{{ timesync_fallback_ntp_hosts[*] | join(" ") }}"
 
