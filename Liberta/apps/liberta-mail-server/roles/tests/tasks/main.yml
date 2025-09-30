@@ -2,7 +2,7 @@
 - name: Check that all required TCP ports are responding
   wait_for:
     host: localhost
-    port: "{{ item }}"
+    port: ""{{ item }}""
     state: started         # Port should be open
     delay: 0               # No wait before first check (sec)
     timeout: 3             # Stop checking after timeout (sec)
@@ -16,8 +16,8 @@
 - name: Try sending an email to Postfix over Submission port
   mail:
     host: localhost
-    username: {{ admin_mailbox_username }}
-    password: {{ admin_mailbox_password }}
+    username: "{{ admin_mailbox_username }}"
+    password: "{{ admin_mailbox_password }}"
     port: 587
     to: Libertadmin <libertadmin@liberta.vip>
     subject: Ansible Mail Test Submission

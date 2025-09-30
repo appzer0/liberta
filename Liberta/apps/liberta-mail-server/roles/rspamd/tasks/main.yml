@@ -49,14 +49,14 @@
 - name: Create DKIM key when dkim_file is absent
   block: 
     - name : Create DKIM keys
-      shell : rspamadm dkim_keygen -d {{ mail_domain }} -s {{ mail_dkim_selector }} -k /var/lib/rspamd/dkim/{{ mail_domain }}.{{ mail_dkim_selector }}.key
+      shell : rspamadm dkim_keygen -d "{{ mail_domain }}" -s "{{ mail_dkim_selector }}" -k /var/lib/rspamd/dkim/"{{ mail_domain }}"."{{ mail_dkim_selector }}".key
       register: dkim_key
     - name : Then write the DKIM output PUBLIC key in a file
       copy : 
         content : "{{ dkim_key.stdout }}"
-        dest: /var/lib/rspamd/dkim/{{ mail_domain }}.{{ mail_dkim_selector }}.dnstxtentry.txt
+        dest: /var/lib/rspamd/dkim/"{{ mail_domain }}"."{{ mail_dkim_selector }}".dnstxtentry.txt
   when : not dkim_file.stat.exists
 
 - name: Now display the DKIM public key text for DNS entry
-  shell : cat /var/lib/rspamd/dkim/{{ mail_domain }}.{{ mail_dkim_selector }}.dnstxtentry.txt
+  shell : cat /var/lib/rspamd/dkim/"{{ mail_domain }}"."{{ mail_dkim_selector }}".dnstxtentry.txt
   register : dkim_public

@@ -29,8 +29,8 @@ protocol lmtp {
 }
 
 # Emplacement des boites e-mail :
-mail_location = maildir:{{ mail_data_rootdir }}/%d/%n/Maildir
-mail_home = {{ mail_data_rootdir }}/%d/%n/Maildir
+mail_location = maildir:"{{ mail_data_rootdir }}"/%d/%n/Maildir
+mail_home = "{{ mail_data_rootdir }}"/%d/%n/Maildir
 
 # Configuration SSL (algos) :
 ssl = yes
@@ -40,8 +40,8 @@ ssl_min_protocol = TLSv1.2
 ssl_cipher_list = ALL:!aNULL:!DES:!3DES:!MD5:!DES+MD5:!RC4
 
 # Certificats Let's Encrypt :
-ssl_cert = </etc/letsencrypt/live/{{ mail_fqdn }}/fullchain.pem
-ssl_key = </etc/letsencrypt/live/{{ mail_fqdn }}/privkey.pem
+ssl_cert = </etc/letsencrypt/live/"{{ mail_fqdn }}"/fullchain.pem
+ssl_key = </etc/letsencrypt/live/"{{ mail_fqdn }}"/privkey.pem
 
 # Configuration des logins :
 auth_mechanisms = plain login

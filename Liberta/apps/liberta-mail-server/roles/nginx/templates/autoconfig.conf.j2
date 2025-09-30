@@ -2,11 +2,11 @@
 server {
 	listen 80;
 	listen [::]:80;
-	server_name {{ autoconfig_domain }};
+	server_name "{{ autoconfig_domain }}";
 	root /var/www/autoconfig;
 	
-	access_log /var/log/nginx/{{ autoconfig_domain }}_access.log;
-	error_log /var/log/nginx/{{ autoconfig_domain }}_error.log;
+	access_log /var/log/nginx/"{{ autoconfig_domain }}"_access.log;
+	error_log /var/log/nginx/"{{ autoconfig_domain }}"_error.log;
 	
 	rewrite ^/mail/config-v1\.1\.xml$ /autoconfig.xml;
 }

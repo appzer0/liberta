@@ -5,8 +5,8 @@
 compatibility_level = 9999
 
 # Les paramètres les plus importants de Postfix :
-mydomain = {{ mail_domain }}
-myhostname = {{ mail_fqdn }}
+mydomain = "{{ mail_domain }}"
+myhostname = "{{ mail_fqdn }}"
 myorigin = $mydomain
 mydestination = localhost
 
@@ -15,10 +15,10 @@ inet_protocols = ipv4, ipv6
 inet_interfaces = all
 
 # Réseaux autorises sans authentification : LAN, IP publiques :
-mynetworks = {{ ipv4_address }} {{ ipv6_address }} {{ lan_ipv4 }} {{ loopback_ipv4 }} {{ loopback_ipv6 }}
+mynetworks = "{{ ipv4_address }}" "{{ ipv6_address }}" "{{ lan_ipv4 }}" "{{ loopback_ipv4 }}" "{{ loopback_ipv6 }}"
 
 # Message d'accueil pour SMTP :
-smtpd_banner = "$myhostname ESMTP Bonjour et bienvenue sur le serveur mail de {{ pretty_domain }} - Hi and welcome on {{ pretty_domain }}'s mail server. {{ general_website_url }}"
+smtpd_banner = "$myhostname ESMTP Bonjour et bienvenue sur le serveur mail de "{{ pretty_domain }}" - Hi and welcome on "{{ pretty_domain }}"'s mail server. "{{ general_website_url }}""
 biff = no
 append_dot_mydomain = no
 readme_directory = no
@@ -46,9 +46,9 @@ broken_sasl_auth_clients = yes
 
 # Configuration SSL/TLS :
 smtp_tls_CAfile = /etc/ssl/certs/ca-certificates.crt
-smtpd_tls_CAfile=/etc/letsencrypt/live/{{ mail_fqdn }}/fullchain.pem
-smtpd_tls_cert_file=/etc/letsencrypt/live/{{ mail_fqdn }}/cert.pem
-smtpd_tls_key_file=/etc/letsencrypt/live/{{ mail_fqdn }}/privkey.pem
+smtpd_tls_CAfile=/etc/letsencrypt/live/"{{ mail_fqdn }}"/fullchain.pem
+smtpd_tls_cert_file=/etc/letsencrypt/live/"{{ mail_fqdn }}"/cert.pem
+smtpd_tls_key_file=/etc/letsencrypt/live/"{{ mail_fqdn }}"/privkey.pem
 smtpd_tls_session_cache_database = btree:${data_directory}/smtpd_scache
 smtp_tls_session_cache_database = btree:${data_directory}/smtp_scache
 smtp_tls_security_level = may
@@ -125,7 +125,7 @@ smtpd_recipient_restrictions =
 	check_policy_service unix:private/quota-status,
 	permit
 
-# Le delimiteur pour beneficier d'alias dynamiques ("nomdelaboite.sitelouche@{{ mail_fqdn }}")
+# Le delimiteur pour beneficier d'alias dynamiques ("nomdelaboite.sitelouche@"{{ mail_fqdn }}"")
 recipient_delimiter = .
 
 # Alias mail vers utilisateur UNIX (on ne s'en sert pas, voir virtual_alias_maps).

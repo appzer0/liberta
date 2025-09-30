@@ -20,17 +20,17 @@
     src: certbot.conf.j2
     dest: /etc/nginx/sites-available/certbot.conf
 
-- name: install config file for mail autoconfig (Thunderbird, etc.)
-  template: autoconfig.conf.j2
-    src: certbot.conf.j2
-    dest: /etc/nginx/sites-available/certbot.conf
-
 - name: Create symbolic link to enable our certbot config
   ansible.builtin.file:
     src: ../sites-available/certbot.conf
     dest: /etc/nginx/sites-enabled/certbot.conf
     state: link
     force: true
+
+- name: install config file for mail autoconfig (Thunderbird, etc.)
+  template:
+    src: autoconfig.conf.j2
+    dest: /etc/nginx/sites-available/autoconfig.conf
 
 - name: Create symbolic link to enable our autoconfig config
   ansible.builtin.file:
