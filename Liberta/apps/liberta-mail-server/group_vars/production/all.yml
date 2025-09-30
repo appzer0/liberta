@@ -2,71 +2,71 @@
 ### This file is for *** PRODUCTION *** environment ###
 
 # Domains
-mail_fqdn: mail.liberta.email
-mail_domain: liberta.email
-webmail_domain: webmail.liberta.email
-autoconfig_domain: autoconfig.liberta.email
-pretty_domain: Liberta
-general_website_url: https://liberta.vip
+mail_fqdn: "mail.liberta.email"
+mail_domain: "liberta.email"
+webmail_domain: "webmail.liberta.email"
+autoconfig_domain: "autoconfig.liberta.email"
+pretty_domain: "Liberta"
+general_website_url: "https://liberta.vip"
 
 ### Trusty networks ###
 
 # Public IPv4 address
-ipv4_address: 159.69.59.13/32
+ipv4_address: "159.69.59.13/32"
 
 # Public IPv6 address
-ipv6_address: [2a01:4f8:231:aa6::7]/128
+ipv6_address: "[2a01:4f8:231:aa6::7]/128"
 
 # Internal LAN IPv4  address
-lan_ipv4: 192.168.10.7/32
+lan_ipv4: "192.168.10.7/32"
 
 # Loopbacks addresses
-loopback_ipv4: 127.0.0.0/8
-loopback_ipv6: [::1]/128
+loopback_ipv4: "127.0.0.0/8"
+loopback_ipv6: "[::1]/128"
 
 # Trusty network for BIND9
-dns_trusty_network: 192.168.10.0/24
+dns_trusty_network: "192.168.10.0/24"
 
 # Trusty forwarded IP addresses for BIND9's DNS cache
-dns_forwarded_ipv4_1: 185.12.64.1
-dns_forwarded_ipv4_2: 185.12.64.2
-dns_forwarded_ipv6_1: 2a01:4ff:ff00::add:1
-dns_forwarded_ipv6_2: 2a01:4ff:ff00::add:2
+dns_forwarded_ipv4_1: "185.12.64.1"
+dns_forwarded_ipv4_2: "185.12.64.2"
+dns_forwarded_ipv6_1: "2a01:4ff:ff00::add:1"
+dns_forwarded_ipv6_2: "2a01:4ff:ff00::add:2"
 
 ### END of Trusty networks ###
 
 # Redis server IP and DB ID for rspamd
-redis_server_ipv4: 192.168.10.6
-redis_server_dbname: 2
+redis_server_ipv4: "192.168.10.6"
+redis_server_dbname: "2"
 
 # DKIM selector for the domain (date when it's been generated + counter)
-mail_dkim_selector : 2024080701
+mail_dkim_selector : "2024080701"
 
 # For using with Let's Encrypt certificate generation
 email_contact: "libertadmin@liberta.vip"
-nginx_webroot: /var/www/certbot
+nginx_webroot: "/var/www/certbot"
 
 # UID/GID fore virtual mail user
-vmail_user: vmail
-vmail_group: vmail
-vmail_uid: 5000
-vmail_gid: 5000
+vmail_user: "vmail"
+vmail_group: "vmail"
+vmail_uid: "5000"
+vmail_gid: "5000"
 
 # NFS shares IP and dirname for mailboxes storage
-nfs_server_ipv4: 192.168.10.1
-nfs_server_share: /zdata/mail_data
+nfs_server_ipv4: "192.168.10.1"
+nfs_server_share: "/zdata/mail_data"
 
 # Base directory for mailboxes storage
-mail_data_rootdir : /mail_data
+mail_data_rootdir : "/mail_data"
 
 # NTP and timezone-related settings
-timesync_timezone: Europe/Paris
+timesync_timezone: "Europe/Paris"
 timesync_ntp_hosts:
-  - ntp1.hetzner.de
-  - ntp2.hetzner.de
-  - ntp3.hetzner.de
+  - "ntp1.hetzner.de"
+  - "ntp2.hetzner.de"
+  - "ntp3.hetzner.de"
 timesync_fallback_ntp_hosts:
-  - 0.debian.pool.ntp.org
-  - 1.debian.pool.ntp.org
-  - 2.debian.pool.ntp.org
-  - 3.debian.pool.ntp.org
+  - "0.debian.pool.ntp.org"
+  - "1.debian.pool.ntp.org"
+  - "2.debian.pool.ntp.org"
+  - "3.debian.pool.ntp.org"
