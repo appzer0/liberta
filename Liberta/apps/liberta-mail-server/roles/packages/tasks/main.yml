@@ -17,7 +17,7 @@
       - mutt
       - nginx
       - mariadb-client
-      - nfs-commmon
+      - nfs-common
       - bind9
       - bind9-dnsutils
       - bind9-host
