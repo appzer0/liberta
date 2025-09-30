@@ -17,6 +17,7 @@
 - name: First hash the rspamd web interface password
   shell: "rspamadm pw -p {{ rspamd_web_access }}"
   register: rspamd_web_access_hashed
+  changed_when: false
 
 - name: Set rspamd admin web interface password
   template:
@@ -48,15 +49,20 @@
 
 - name: Create DKIM key when dkim_file is absent
   block: 
-    - name : Create DKIM keys
-      shell : rspamadm dkim_keygen -d "{{ mail_domain }}" -s "{{ mail_dkim_selector }}" -k /var/lib/rspamd/dkim/"{{ mail_domain }}"."{{ mail_dkim_selector }}".key
+    - name: Create DKIM keys
+      shell: >
+        rspamadm dkim_keygen -d "{{ mail_domain }}"
+        -s "{{ mail_dkim_selector }}"
+        -k /var/lib/rspamd/dkim/{{ mail_domain }}.{{ mail_dkim_selector }}.key
       register: dkim_key
-    - name : Then write the DKIM output PUBLIC key in a file
-      copy : 
-        content : "{{ dkim_key.stdout }}"
-        dest: /var/lib/rspamd/dkim/"{{ mail_domain }}"."{{ mail_dkim_selector }}".dnstxtentry.txt
-  when : not dkim_file.stat.exists
+
+    - name: Then write the DKIM output PUBLIC key in a file
+      copy: 
+        content: "{{ dkim_key.stdout }}"
+        dest: /var/lib/rspamd/dkim/{{ mail_domain }}.{{ mail_dkim_selector }}.dnstxtentry.txt
+  when: not dkim_file.stat.exists
 
 - name: Now display the DKIM public key text for DNS entry
-  shell : cat /var/lib/rspamd/dkim/"{{ mail_domain }}"."{{ mail_dkim_selector }}".dnstxtentry.txt
-  register : dkim_public
+  shell: cat /var/lib/rspamd/dkim/{{ mail_domain }}.{{ mail_dkim_selector }}.dnstxtentry.txt
+  register: dkim_public
+  changed_when: false

@@ -7,11 +7,12 @@
 
 - name: Make sure MySQL database exists
   community.mysql.mysql_db:
-    login_host: "{{ vault_mysql_mailserver_dbhost }}"
-    login_user: "{{ vault_mysql_mailserver_dbusername }}"
-    login_password: "{{ vault_mysql_mailserver_dbpasswd }}"
-    name: "{{ vault_mysql_mailserver_dbname }}"
+    login_host: "{{ mysql.mailserver.host }}"
+    login_user: "{{ mysql.mailserver.username }}"
+    login_password: "{{ mysql.mailserver.password }}"
+    name: "{{ mysql.mailserver.dbname }}"
     state: present
+  register: database
 
 - name: Populate MySQL database
   when: database.changed
@@ -23,10 +24,10 @@
 
     - name: Import SQL schema into database
       community.mysql.mysql_db:
-        login_host: "{{ vault_mysql_mailserver_dbhost }}"
-        login_user: "{{ vault_mysql_mailserver_dbusername }}"
-        login_password: "{{ vault_mysql_mailserver_dbpasswd }}"
-        db: "{{ vault_mysql_mailserver_dbname }}"
+        login_host: "{{ mysql.mailserver.host }}"
+        login_user: "{{ mysql.mailserver.username }}"
+        login_password: "{{ mysql.mailserver.password }}"
+        db: "{{ mysql.mailserver.dbname }}"
         state: import
         target: /tmp/schema.sql
 
@@ -51,10 +52,10 @@
 
     - name: Insert each record into domain table
       community.mysql.mysql_query:
-        login_host: "{{ vault_mysql_mailserver_dbhost }}"
-        login_user: "{{ vault_mysql_mailserver_dbusername }}"
-        login_password: "{{ vault_mysql_mailserver_dbpasswd }}"
-        db: "{{ vault_mysql_mailserver_dbname }}"
+        login_host: "{{ mysql.mailserver.host }}"
+        login_user: "{{ mysql.mailserver.username }}"
+        login_password: "{{ mysql.mailserver.password }}"
+        db: "{{ mysql.mailserver.dbname }}"
         query: "INSERT INTO `domain` (`id`, `domain`, `transport`) VALUES (%s, %s, %s)"
         params: "{{ item }}"
       loop: "{{ domaindata }}"
@@ -75,10 +76,10 @@
 
     - name: Add rows out of a loop to users table
       community.mysql.mysql_query:
-        login_host: "{{ vault_mysql_mailserver_dbhost }}"
-        login_user: "{{ vault_mysql_mailserver_dbusername }}"
-        login_password: "{{ vault_mysql_mailserver_dbpasswd }}"
-        db: "{{ vault_mysql_mailserver_dbname }}"
+        login_host: "{{ mysql.mailserver.host }}"
+        login_user: "{{ mysql.mailserver.username }}"
+        login_password: "{{ mysql.mailserver.password }}"
+        db: "{{ mysql.mailserver.dbname }}"
         query: "INSERT INTO `users` (`id`, `domain_id`, `email`, `crypt`, `quota`, `note`, `active`) VALUES (%s, %s, %s, %s, %s, %s, %s)"
         params: "{{ item }}"
       loop: "{{ usersdata }}"

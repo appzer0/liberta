@@ -11,11 +11,14 @@
           - autoconfig_domain
           - pretty_domain
           - general_website_url
-          - ipv4_address
-          - ipv6_address
-          - lan_ipv4
-          - timesync_ntp_hosts
-          - timesync_fallback_ntp_hosts
+          - trusty_networks
+          - redis
+          - mail_dkim_selector
+          - letsencrypt
+          - vmail
+          - nfs
+          - mail_data_rootdir
+          - timesync
       debug:
         var: "{{ item }}"
       loop: "{{ vars_to_check }}"
@@ -27,7 +30,6 @@
         that: ansible_distribution_release == 'bookworm'
         fail_msg: "This Ansible playbook is only supported on Debian Bookworm."
         success_msg: "Debian Bookworm found."
-
 
 - hosts: all
   roles:
@@ -42,12 +44,19 @@
     - role: certbot
       tags: certbot
     - role: database
+      vars:
+        mysql_mailserver_dbusername: "{{ mysql.mailserver.username }}"
+        mysql_mailserver_dbpasswd: "{{ mysql.mailserver.password }}"
+        mysql_mailserver_dbname: "{{ mysql.mailserver.dbname }}"
+        mysql_mailserver_dbhost: "{{ mysql.mailserver.host }}"
       tags: database
     - role: postfix
       tags: postfix
     - role: dovecot
       tags: dovecot
     - role: rspamd
+      vars:
+        rspamd_web_access: "{{ rspamd_web_access }}"
       tags: rspamd
 
 - hosts: all
@@ -58,9 +67,8 @@
           - ""
           - "Domain        : {{ mail_domain }}"
           - "FQDN          : {{ mail_fqdn }}"
-          - "Public IPv4   : {{ ipv4_address }}"
-          - "Public IPv6   : {{ ipv6_address }}"
-          - "Internal IPv4 : {{ lan_ipv4 }}"
+          - "Public IPv4   : {{ trusty_networks.ipv4_address }}"
+          - "Public IPv6   : {{ trusty_networks.ipv6_address }}"
+          - "Internal IPv4 : {{ trusty_networks.lan_ipv4 }}"
           - "DKIM selector : {{ mail_dkim_selector }}"
           - "Mail location : {{ mail_data_rootdir }}"
-
