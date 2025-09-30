@@ -7,7 +7,7 @@ mail_domain: liberta.email
 webmail_domain: webmail.liberta.email
 autoconfig_domain: autoconfig.liberta.email
 pretty_domain: Liberta
-general_website_url: https://www.liberta.vip
+general_website_url: https://liberta.vip
 
 ### Trusty networks ###
 

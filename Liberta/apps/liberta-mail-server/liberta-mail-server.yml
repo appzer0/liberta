@@ -28,6 +28,10 @@
       tags: dovecot
     - role: rspamd
       tags: rspamd
+  vars:
+    favcolor: blue
+  vars_files:
+    - /group_vars/production/all.yml
 
 - hosts: all
   tasks:
