@@ -7,6 +7,7 @@
 
 - name: Make sure  MySQL database exists
   community.mysql.mysql_db:
+    login_unix_socket: /var/run/mysqld/mysqld.sock
     login_host: "{{ mysql_mailserver_dbhost }}"
     login_user: "{{ mysql_mailserver_dbusername }}"
     login_password: "{{ mysql_mailserver_dbpasswd }}"
