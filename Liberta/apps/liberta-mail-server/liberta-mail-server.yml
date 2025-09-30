@@ -1,5 +1,26 @@
 ---
 - hosts: all
+  gather_facts: no
+  tasks:
+    - name: Debug types of suspect variables
+      vars:
+        vars_to_check:
+          - mail_fqdn
+          - mail_domain
+          - webmail_domain
+          - autoconfig_domain
+          - pretty_domain
+          - general_website_url
+          - ipv4_address
+          - ipv6_address
+          - lan_ipv4
+          - timesync_ntp_hosts
+          - timesync_fallback_ntp_hosts
+      debug:
+        msg: "{{ item }} is of type {{ vars[item] | type_debug }}"
+      loop: "{{ vars_to_check }}"
+
+- hosts: all
   tasks:
     - name: "Checking operating system version"
       assert:
