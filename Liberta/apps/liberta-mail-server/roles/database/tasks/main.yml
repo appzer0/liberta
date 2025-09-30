@@ -5,16 +5,14 @@
     name:
       - python3-pymysql
 
-# Grant user and create database in the first place on the mysql server:
+# Create database in the first place on the mysql server:
 # mysql> create database "{{ mysql_mailserver_dbname }}";
-# mysql> grant all privileges on "{{ mysql_mailserver_dbname }}"".* to '"{{ mysql_mailserver_dbname }}"'@'%' identified by '"{{ mysql_mailserver_dbpasswd }}"';
-# mysql> flush privileges;
 - name: Create user with password, all database privileges
   community.mysql.mysql_user:
     state: present
-    name: bob
-    password: 12345dd
-    priv: '"{{ mysql_mailserver_dbname }}"".*:ALL'
+    name: "{{ mysql_mailserver_dbusername }}"
+    password: "{{ mysql_mailserver_dbpassword }}"
+    priv: '"{{ mysql_mailserver_dbname }}".*:ALL'
 
 - name: Make sure  MySQL database exists
   community.mysql.mysql_db:
