@@ -53,7 +53,7 @@
       shell: >
         rspamadm dkim_keygen -d "{{ mail_domain }}"
         -s "{{ mail_dkim_selector }}"
-        -k /var/lib/rspamd/dkim/{{ mail_domain }}.{{ mail_dkim_selector }}.key
+        -k /var/lib/rspamd/dkim/"{{ mail_domain }}"."{{ mail_dkim_selector }}".key
       register: dkim_key
 
     - name: Then write the DKIM output PUBLIC key in a file
