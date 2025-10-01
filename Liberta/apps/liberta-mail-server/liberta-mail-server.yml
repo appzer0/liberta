@@ -1,6 +1,6 @@
 ---
 
-- hosts: all
+- hosts: production
   tasks:
     - name: "Checking operating system version"
       assert:
@@ -8,7 +8,7 @@
         fail_msg: "This Ansible playbook is only supported on Debian Bookworm."
         success_msg: "Debian Bookworm found."
 
-- hosts: all
+- hosts: production
   roles:
     - packages
     - common
@@ -20,7 +20,7 @@
     - dovecot
     - rspamd
 
-- hosts: all
+- hosts: production
   tasks:
     - debug:
         msg:
