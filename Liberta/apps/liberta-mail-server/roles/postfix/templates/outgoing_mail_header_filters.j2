@@ -1,5 +1,5 @@
 # On propose toujours un lien de desinscription le cas echeant :
-/^Content-Transfer-Encoding:/i PREPEND List-Unsubscribe-Post: List-Unsubscribe=One-Click\nList-Unsubscribe: mailto:"{{ email_contact }}"?subject=unsubscribe
+/^Content-Transfer-Encoding:/i PREPEND List-Unsubscribe-Post: List-Unsubscribe=One-Click\nList-Unsubscribe: mailto:"{{ letsencrypt.email_contact }}"?subject=unsubscribe
 
 # Nettoyage des entetes pour anonymisation : 
 /^\s*Received:[^\n]*(.*)/         REPLACE Received: from authenticated user ("{{ mail_fqdn }}")$1
