@@ -1,14 +1,14 @@
 ---
 - name: Create the vmail group
   group:
-    name: "{{ vmail_group }}"
-    gid: "{{ vmail_gid }}"
+    name: "{{ vmail.group }}"
+    gid: "{{ vmail.gid }}"
 
 - name: Create the vmail user
   user:
-    name: "{{ vmail_user }}"
-    uid: "{{ vmail_uid }}"
-    group: "{{ vmail_group }}"
+    name: "{{ vmail.user }}"
+    uid: "{{ vmail.uid }}"
+    group: "{{ vmail.group }}"
     home: "{{ mail_data_rootdir }}"
     create_home: yes
 
@@ -16,13 +16,13 @@
   file:
     path: "{{ mail_data_rootdir }}"
     state: directory
-    owner: "{{ vmail_user }}"
-    group: "{{ vmail_group }}"
+    owner: "{{ vmail.user }}"
+    group: "{{ vmail.group }}"
 
 - name: Add NFS mountpoint to /etc/fstab
   lineinfile:
     path: '/etc/fstab'
-    line: "{{ nfs_server_ipv4 }}:{{ nfs_server_share }} {{ mail_data_rootdir }} nfs auto 0 0"
+    line: "{{ nfs.server_ipv4 }}:{{ nfs.server_share }} {{ mail_data_rootdir }} nfs auto 0 0"
     state: present
 
 - name: Install Dovecot config files
@@ -39,7 +39,7 @@
   file:
     path: /etc/dovecot/dovecot.conf
     owner: root
-    group: "{{ vmail_group }}"
+    group: "{{ vmail.group }}"
     mode: '0644'
 
 - name: Fix ownership and mode of dovecot-sql.conf.ext
@@ -59,18 +59,18 @@
 
 - name: Copy spam-learning shell & Sieve scripts + compile rules
   block:
-    - name: Copy rspamd learn shell script
+    - name: Copy rspamd learn shell scripts
       copy:
         src: "rspamd-learn-{{ item }}.sh"
         dest: "/etc/dovecot/sieve/rspamd-learn-{{ item }}.sh"
-        owner: "{{ vmail_user }}"
-        group: "{{ vmail_group }}"
+        owner: "{{ vmail.user }}"
+        group: "{{ vmail.group }}"
         mode: '0700'
       loop:
       - ham
       - spam
 
-    - name: Copy sieve script
+    - name: Copy sieve scripts
       copy:
         src: "learn-{{ item }}.sieve"
         dest: "/etc/dovecot/sieve/learn-{{ item }}.sieve"
@@ -81,7 +81,7 @@
       - ham
       - spam
 
-    - name: Compile sieve script
+    - name: Compile sieve scripts
       command:
         cmd: "sievec /etc/dovecot/sieve/learn-{{ item }}.sieve"
         creates: "/etc/dovecot/sieve/learn-{{ item }}.svbin"
