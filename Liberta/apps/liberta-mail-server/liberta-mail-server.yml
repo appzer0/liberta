@@ -1,27 +1,4 @@
 ---
-- hosts: all
-  gather_facts: no
-  tasks:
-    - name: Show a core list of suspect variables
-      vars:
-        vars_to_check:
-          - mail_fqdn
-          - mail_domain
-          - webmail_domain
-          - autoconfig_domain
-          - pretty_domain
-          - general_website_url
-          - trusty_networks
-          - redis
-          - mail_dkim_selector
-          - letsencrypt
-          - vmail
-          - nfs
-          - mail_data_rootdir
-          - timesync
-      debug:
-        var: "{{ item }}"
-      loop: "{{ vars_to_check }}"
 
 - hosts: all
   tasks:
