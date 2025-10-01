@@ -10,31 +10,15 @@
 
 - hosts: all
   roles:
-    - role: packages
-      tags: packages
-    - role: common
-      tags: common
-    - role: bind9
-      tags: bind9
-    - role: nginx
-      tags: nginx
-    - role: certbot
-      tags: certbot
-    - role: database
-      vars:
-        mysql_mailserver_dbusername: "{{ mysql.mailserver.username }}"
-        mysql_mailserver_dbpasswd: "{{ mysql.mailserver.password }}"
-        mysql_mailserver_dbname: "{{ mysql.mailserver.dbname }}"
-        mysql_mailserver_dbhost: "{{ mysql.mailserver.host }}"
-      tags: database
-    - role: postfix
-      tags: postfix
-    - role: dovecot
-      tags: dovecot
-    - role: rspamd
-      vars:
-        rspamd_web_access: "{{ rspamd_web_access }}"
-      tags: rspamd
+    - packages
+    - common
+    - bind9
+    - nginx
+    - certbot
+    - database
+    - postfix
+    - dovecot
+    - rspamd
 
 - hosts: all
   tasks:
