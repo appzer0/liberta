@@ -1,0 +1,65 @@
+---
+# Domains and URLs as simple strings
+mail_fqdn: "mail.liberta.email"
+mail_domain: "liberta.email"
+webmail_domain: "webmail.liberta.email"
+autoconfig_domain: "autoconfig.liberta.email"
+pretty_domain: "Liberta"
+general_website_url: "https://liberta.vip"
+
+# Trusty networks - collections explicites en dictionnaires et listes
+trusty_networks:
+  ipv4_address: "159.69.59.13/32"
+  ipv6_address: "2a01:4f8:231:aa6::7/128"
+  lan_ipv4: "192.168.10.7/32"
+  loopbacks:
+    ipv4: "127.0.0.0/8"
+    ipv6: "::1/128"
+  dns_trusty_network: "192.168.10.0/24"
+  dns_forwarded_ipv4:
+    - "185.12.64.1"
+    - "185.12.64.2"
+  dns_forwarded_ipv6:
+    - "2a01:4ff:ff00::add:1"
+    - "2a01:4ff:ff00::add:2"
+
+# Redis config group
+redis:
+  server_ipv4: "192.168.10.6"
+  dbname: "2"
+
+# DKIM selector
+mail_dkim_selector: "2024080701"
+
+# Let's Encrypt settings
+letsencrypt:
+  email_contact: "libertadmin@liberta.vip"
+  nginx_webroot: "/var/www/certbot"
+
+# Virtual mail user info
+vmail:
+  user: "vmail"
+  group: "vmail"
+  uid: 5000
+  gid: 5000
+
+# NFS share info
+nfs:
+  server_ipv4: "192.168.10.1"
+  server_share: "/zdata/mail_data"
+
+# Mail data root dir
+mail_data_rootdir: "/mail_data"
+
+# Time synchronization settings
+timesync:
+  timezone: "Europe/Paris"
+  ntp_hosts:
+    - "ntp1.hetzner.de"
+    - "ntp2.hetzner.de"
+    - "ntp3.hetzner.de"
+  fallback_ntp_hosts:
+    - "0.debian.pool.ntp.org"
+    - "1.debian.pool.ntp.org"
+    - "2.debian.pool.ntp.org"
+    - "3.debian.pool.ntp.org"
