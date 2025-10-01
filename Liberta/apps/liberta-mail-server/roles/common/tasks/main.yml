@@ -6,7 +6,7 @@
 
 - name: Set timezone
   command:
-    cmd: "timedatectl set-timezone Europe/Paris "
+    cmd: "timedatectl set-timezone {{ timesync.timezone }}"
 
 - name: Make sure no nameservers are in resolv.conf
   lineinfile:
