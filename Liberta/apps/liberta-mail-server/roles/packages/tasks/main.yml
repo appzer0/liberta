@@ -3,6 +3,7 @@
   apt:
     update_cache: yes
     name:
+      - libsodium23
       - certbot
       - pwgen
       - postfix
