@@ -12,74 +12,81 @@
     login_password: "{{ mysql.mailserver.password }}"
     name: "{{ mysql.mailserver.dbname }}"
     state: present
-  register: database
 
-- name: Populate MySQL database
-  when: database.changed
-  block:
-    - name: Copy MySQL database schema.sql into /tmp
-      copy:
-        src: schema.sql
-        dest: /tmp
+- name: Check how many tables are present in the database
+  community.mysql.mysql_query:
+    login_host: "{{ mysql.mailserver.host }}"
+    login_user: "{{ mysql.mailserver.username }}"
+    login_password: "{{ mysql.mailserver.password }}"
+    db: "{{ mysql.mailserver.dbname }}"
+    query: "SHOW TABLES;"
+  register: db_tables
+  changed_when: false
 
-    - name: Import SQL schema into database
-      community.mysql.mysql_db:
-        login_host: "{{ mysql.mailserver.host }}"
-        login_user: "{{ mysql.mailserver.username }}"
-        login_password: "{{ mysql.mailserver.password }}"
-        db: "{{ mysql.mailserver.dbname }}"
-        state: import
-        target: /tmp/schema.sql
+- name: Copy MySQL database schema.sql into /tmp
+  copy:
+    src: schema.sql
+    dest: /tmp/schema.sql
 
-    - name: Define domaindata list
-      set_fact:
-        domaindata:
-          - ["1", "liberta.email", ""]
-          - ["2", "liberta.vip", ""]
-          - ["", "orange.fr", "slow:"]
-          - ["", "yahoo.fr", "yahoo:"]
-          - ["", "yahoo.com", "yahoo:"]
-          - ["", "wanadoo.fr", "slow:"]
-          - ["", "orange.com", "slow:"]
-          - ["", "gmail.com", "slow:"]
-          - ["", "gmail.fr", "slow:"]
-          - ["", "hotmail.com", "slow:"]
-          - ["", "hotmail.fr", "slow:"]
-          - ["", "outlook.com", "slow:"]
-          - ["", "outlook.fr", "slow:"]
-          - ["", "live.com", "slow:"]
-          - ["", "live.fr", "slow:"]
+- name: Import SQL schema into database (only if database is empty)
+  community.mysql.mysql_db:
+    login_host: "{{ mysql.mailserver.host }}"
+    login_user: "{{ mysql.mailserver.username }}"
+    login_password: "{{ mysql.mailserver.password }}"
+    db: "{{ mysql.mailserver.dbname }}"
+    state: import
+    target: /tmp/schema.sql
+  when: db_tables.query_result[0] | length == 0
 
-    - name: Insert each record into domain table
-      community.mysql.mysql_query:
-        login_host: "{{ mysql.mailserver.host }}"
-        login_user: "{{ mysql.mailserver.username }}"
-        login_password: "{{ mysql.mailserver.password }}"
-        db: "{{ mysql.mailserver.dbname }}"
-        query: "INSERT INTO `domain` (`id`, `domain`, `transport`) VALUES (%s, %s, %s)"
-        params: "{{ item }}"
-      loop: "{{ domaindata }}"
+- name: Define domaindata list
+  set_fact:
+    domaindata:
+      - ["1", "liberta.email", ""]
+      - ["2", "liberta.vip", ""]
+      - ["", "orange.fr", "slow:"]
+      - ["", "yahoo.fr", "yahoo:"]
+      - ["", "yahoo.com", "yahoo:"]
+      - ["", "wanadoo.fr", "slow:"]
+      - ["", "orange.com", "slow:"]
+      - ["", "gmail.com", "slow:"]
+      - ["", "gmail.fr", "slow:"]
+      - ["", "hotmail.com", "slow:"]
+      - ["", "hotmail.fr", "slow:"]
+      - ["", "outlook.com", "slow:"]
+      - ["", "outlook.fr", "slow:"]
+      - ["", "live.com", "slow:"]
+      - ["", "live.fr", "slow:"]
 
-    - name: Define usersdata list
-      set_fact:
-        usersdata:
-          - ["", "1", "mailadmin@liberta.email", "{ARGON2ID}$argon2id$v=19$m=65536,t=3,p=1$JX7a/91Q2ZNmPeFhlJ1c1w$GpULDlY7WH5WUY1uzGuxIfa84N3efNPHNIOpKahX26M", "10G", "@!M!@", "1"]
-          - ["", "1", "postmaster@liberta.email", "{ARGON2ID}$argon2id$v=19$m=65536,t=3,p=1$udeJKO26DAfqPpeiqgUAOw$hxk9OtvXjXhKyTgHxVaTmi8AijkA5OoHLHbiiOgj29g", "10G", "!M!", "1"]
-          - ["", "1", "admin@liberta.email", "{ARGON2ID}$argon2id$v=19$m=65536,t=3,p=1$b23pMd/fDHOmZUwYccWzNQ$F1dihKzLW/PjOX0N7z/RnQV1XZ7BNaHn1KfIaPmJDFE", "10G", "!B!", "1"]
-          - ["", "1", "root@liberta.email", "{ARGON2ID}$argon2id$v=19$m=65536,t=3,p=1$ArC504cocbCR3CTcy9pK5Q$5aTid+TCm3qBd/6+KOXUPQgmwbjxqcYQ7/hnjXSCcss", "10G", "!BBB!", "1"]
-          - ["", "1", "abuse@liberta.email", "{ARGON2ID}$argon2id$v=19$m=65536,t=3,p=1$BLaU9+MAYLWbAOa44waFDw$LyZiVsovAf+hpwW6wTW3j19kQrstYjBf65fDZUI/RNI", "10G", "!MMM!", "1"]
-          - ["", "1", "liberta@liberta.email", "{ARGON2ID}$argon2id$v=19$m=65536,t=3,p=1$OyN7Ghl0lWV+sdCk5Iqvow$jwCz7cgF7vNkZzNg+1paXH9XjRuf12iH7z63jvj2spo", "10G", "!BBB!", "1"]
-          - ["", "1", "appzer0@liberta.email", "{ARGON2ID}$argon2id$v=19$m=65536,t=3,p=1$nH2Nnn+QNEXzYjVdbRHd1g$Fmxc8kKMo7bmADU74HzsENCZQi0TfckB8sny51NTh7Q", "10G", "!BBB!", "1"]
-          - ["", "1", "libertadmin@liberta.email", "{ARGON2ID}$argon2id$v=19$m=65536,t=3,p=1$O/AqAm0Z0UVJRJdUUpZmJA$qzkWpgbiQX10IzOVDOwQqGGlfcjf5CUaIBChTEadz44", "10G", "!BBB!", "1"]
-          - ["", "1", "info@liberta.email", "{ARGON2ID}$argon2id$v=19$m=65536,t=3,p=1$8UxWFelI9GwkQr8BxYcbvg$W2a/M0mjC7dY9q70e/mTthfuSvSB7E0zn4hDcnP9F8M", "10G", "!BBB!", "1"]
-          - ["", "1", "liberta@liberta.email", "{ARGON2ID}$argon2id$v=19$m=65536,t=3,p=1$/k+sSIrjR3xXqckR+lU+cw$7jo8U3URCbH20ghVLChPEz0PPxFoer6qyKyORfQOBTk", "10G", "!BBB!", "1"]
+- name: Insert each record into domain table (idempotent)
+  community.mysql.mysql_query:
+    login_host: "{{ mysql.mailserver.host }}"
+    login_user: "{{ mysql.mailserver.username }}"
+    login_password: "{{ mysql.mailserver.password }}"
+    db: "{{ mysql.mailserver.dbname }}"
+    query: "INSERT IGNORE INTO `domain` (`id`, `domain`, `transport`) VALUES (%s, %s, %s)"
+    params: "{{ item }}"
+  loop: "{{ domaindata }}"
 
-    - name: Add rows out of a loop to users table
-      community.mysql.mysql_query:
-        login_host: "{{ mysql.mailserver.host }}"
-        login_user: "{{ mysql.mailserver.username }}"
-        login_password: "{{ mysql.mailserver.password }}"
-        db: "{{ mysql.mailserver.dbname }}"
-        query: "INSERT INTO `users` (`id`, `domain_id`, `email`, `crypt`, `quota`, `note`, `active`) VALUES (%s, %s, %s, %s, %s, %s, %s)"
-        params: "{{ item }}"
-      loop: "{{ usersdata }}"
+- name: Define usersdata list
+  set_fact:
+    usersdata:
+      - ["", "1", "mailadmin@liberta.email", "{ARGON2ID}$argon2id$v=19$m=65536,t=3,p=1$JX7a/91Q2ZNmPeFhlJ1c1w$GpULDlY7WH5WUY1uzGuxIfa84N3efNPHNIOpKahX26M", "10G", "@!M!@", "1"]
+      - ["", "1", "postmaster@liberta.email", "{ARGON2ID}$argon2id$v=19$m=65536,t=3,p=1$udeJKO26DAfqPpeiqgUAOw$hxk9OtvXjXhKyTgHxVaTmi8AijkA5OoHLHbiiOgj29g", "10G", "!M!", "1"]
+      - ["", "1", "admin@liberta.email", "{ARGON2ID}$argon2id$v=19$m=65536,t=3,p=1$b23pMd/fDHOmZUwYccWzNQ$F1dihKzLW/PjOX0N7z/RnQV1XZ7BNaHn1KfIaPmJDFE", "10G", "!B!", "1"]
+      - ["", "1", "root@liberta.email", "{ARGON2ID}$argon2id$v=19$m=65536,t=3,p=1$ArC504cocbCR3CTcy9pK5Q$5aTid+TCm3qBd/6+KOXUPQgmwbjxqcYQ7/hnjXSCcss", "10G", "!BBB!", "1"]
+      - ["", "1", "abuse@liberta.email", "{ARGON2ID}$argon2id$v=19$m=65536,t=3,p=1$BLaU9+MAYLWbAOa44waFDw$LyZiVsovAf+hpwW6wTW3j19kQrstYjBf65fDZUI/RNI", "10G", "!MMM!", "1"]
+      - ["", "1", "liberta@liberta.email", "{ARGON2ID}$argon2id$v=19$m=65536,t=3,p=1$OyN7Ghl0lWV+sdCk5Iqvow$jwCz7cgF7vNkZzNg+1paXH9XjRuf12iH7z63jvj2spo", "10G", "!BBB!", "1"]
+      - ["", "1", "appzer0@liberta.email", "{ARGON2ID}$argon2id$v=19$m=65536,t=3,p=1$nH2Nnn+QNEXzYjVdbRHd1g$Fmxc8kKMo7bmADU74HzsENCZQi0TfckB8sny51NTh7Q", "10G", "!BBB!", "1"]
+      - ["", "1", "libertadmin@liberta.email", "{ARGON2ID}$argon2id$v=19$m=65536,t=3,p=1$O/AqAm0Z0UVJRJdUUpZmJA$qzkWpgbiQX10IzOVDOwQqGGlfcjf5CUaIBChTEadz44", "10G", "!BBB!", "1"]
+      - ["", "1", "info@liberta.email", "{ARGON2ID}$argon2id$v=19$m=65536,t=3,p=1$8UxWFelI9GwkQr8BxYcbvg$W2a/M0mjC7dY9q70e/mTthfuSvSB7E0zn4hDcnP9F8M", "10G", "!BBB!", "1"]
+      - ["", "1", "liberta@liberta.email", "{ARGON2ID}$argon2id$v=19$m=65536,t=3,p=1$/k+sSIrjR3xXqckR+lU+cw$7jo8U3URCbH20ghVLChPEz0PPxFoer6qyKyORfQOBTk", "10G", "!BBB!", "1"]
+
+- name: Add rows out of a loop to users table (idempotent)
+  community.mysql.mysql_query:
+    login_host: "{{ mysql.mailserver.host }}"
+    login_user: "{{ mysql.mailserver.username }}"
+    login_password: "{{ mysql.mailserver.password }}"
+    db: "{{ mysql.mailserver.dbname }}"
+    query: "INSERT IGNORE INTO `users` (`id`, `domain_id`, `email`, `crypt`, `quota`, `note`, `active`) VALUES (%s, %s, %s, %s, %s, %s, %s)"
+    params: "{{ item }}"
+  loop: "{{ usersdata }}"
