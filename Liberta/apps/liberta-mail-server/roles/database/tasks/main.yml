@@ -22,11 +22,8 @@
     query: "SHOW TABLES;"
   register: db_tables
   changed_when: false
-
-- name: Copy MySQL database schema.sql into /tmp
-  copy:
-    src: schema.sql
-    dest: /tmp/schema.sql
+  - debug:
+    var: db_tables
 
 - name: Import SQL schema into database (only if database is empty)
   community.mysql.mysql_db:
@@ -36,7 +33,7 @@
     db: "{{ mysql.mailserver.dbname }}"
     state: import
     target: /tmp/schema.sql
-  when: db_tables.query_result[0] | length == 0
+  when: db_tables.results[0].rows | length == 0
 
 - name: Define domaindata list
   set_fact:
