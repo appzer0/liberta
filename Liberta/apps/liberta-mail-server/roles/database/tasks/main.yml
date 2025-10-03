@@ -37,8 +37,8 @@
     target: /tmp/schema.sql
   when:
     - db_tables is defined
-    - not db_tables.skipped
-    - db_tables.results[0].rows | length == 0
+    - (db_tables.skipped is not defined) or (db_tables.skipped == false)
+    - db_tables.query_result[0] | length == 0
 
 - name: Define domaindata list
   set_fact:
