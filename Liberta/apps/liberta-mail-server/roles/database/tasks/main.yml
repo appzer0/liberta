@@ -22,7 +22,9 @@
     query: "SHOW TABLES;"
   register: db_tables
   changed_when: false
-  - debug:
+
+- name: Debug db_tables content
+  debug:
     var: db_tables
 
 - name: Import SQL schema into database (only if database is empty)
