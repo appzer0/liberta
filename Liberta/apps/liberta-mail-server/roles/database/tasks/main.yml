@@ -71,7 +71,7 @@
     login_password: "{{ mysql.mailserver.password }}"
     login_db: "{{ mysql.mailserver.dbname }}"
     query: "INSERT IGNORE INTO `domain` (`id`, `domain`, `transport`) VALUES (%s, %s, %s)"
-    params: "{{ item }}"
+    positional_args: "{{ item }}"
   loop: "{{ domaindata }}"
 
 - name: Define usersdata list
@@ -95,5 +95,5 @@
     login_password: "{{ mysql.mailserver.password }}"
     login_db: "{{ mysql.mailserver.dbname }}"
     query: "INSERT IGNORE INTO `users` (`id`, `domain_id`, `email`, `crypt`, `quota`, `note`, `active`) VALUES (%s, %s, %s, %s, %s, %s, %s)"
-    params: "{{ item }}"
+    positional_args: "{{ item }}"
   loop: "{{ usersdata }}"
