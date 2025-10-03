@@ -37,7 +37,7 @@
   notify: restart rspamd
 
 - name: Create dkim directory
-  file: 
+  file:
     path: /var/lib/rspamd/dkim/
     state: directory
     mode: '0755'
@@ -48,21 +48,32 @@
   register: dkim_file
 
 - name: Create DKIM key when dkim_file is absent
-  block: 
+  block:
     - name: Create DKIM keys
       shell: >
         rspamadm dkim_keygen -d "{{ mail_domain }}"
         -s "{{ mail_dkim_selector }}"
-        -k /var/lib/rspamd/dkim/"{{ mail_domain }}"."{{ mail_dkim_selector }}".key
+        -k /var/lib/rspamd/dkim/{{ mail_domain }}.{{ mail_dkim_selector }}.key
       register: dkim_key
 
-    - name: Then write the DKIM output PUBLIC key in a file
-      copy: 
+    - name: Write the DKIM output PUBLIC key in a file
+      copy:
         content: "{{ dkim_key.stdout }}"
         dest: /var/lib/rspamd/dkim/{{ mail_domain }}.{{ mail_dkim_selector }}.dnstxtentry.txt
   when: not dkim_file.stat.exists
 
-- name: Now display the DKIM public key text for DNS entry
+- name: Display the DKIM public key text for DNS entry (newly created)
+  debug:
+    msg: "{{ dkim_key.stdout }}"
+  when: dkim_key is defined
+
+- name: Display the DKIM public key text for DNS entry (already exists)
   shell: cat /var/lib/rspamd/dkim/{{ mail_domain }}.{{ mail_dkim_selector }}.dnstxtentry.txt
   register: dkim_public
   changed_when: false
+  when: dkim_key is not defined and dkim_file.stat.exists
+
+- name: Show existing DKIM key content if read
+  debug:
+    msg: "{{ dkim_public.stdout }}"
+  when: dkim_public is defined
