@@ -40,14 +40,16 @@
   file:
     path: /var/lib/rspamd/dkim/
     state: directory
+    owner: _rspamd
+    group: _rspamd
     mode: '0755'
 
-- name: Check if DKIM key already exists by registering dkim_file variable
+- name: Check if DKIM key already exists
   stat:
     path: /var/lib/rspamd/dkim/{{ mail_domain }}.{{ mail_dkim_selector }}.key
   register: dkim_file
 
-- name: Create DKIM key when dkim_file is absent
+- name: Generate DKIM keys if absent
   block:
     - name: Create DKIM keys
       shell: >
@@ -55,30 +57,40 @@
         -s "{{ mail_dkim_selector }}"
         -k /var/lib/rspamd/dkim/{{ mail_domain }}.{{ mail_dkim_selector }}.key
       register: dkim_key
+      changed_when: dkim_key.rc == 0
+      failed_when: dkim_key.rc != 0
+      notify: restart rspamd
 
-    - name: Write the DKIM output PUBLIC key in a file
+    - name: Write the DKIM public key to DNS text file (after generation)
       copy:
         content: "{{ dkim_key.stdout }}"
         dest: /var/lib/rspamd/dkim/{{ mail_domain }}.{{ mail_dkim_selector }}.dnstxtentry.txt
   when: not dkim_file.stat.exists
 
-- name: Display the DKIM public key text for DNS entry (newly created)
-  debug:
-    msg: "{{ dkim_key.stdout }}"
-  when: dkim_key is defined and dkim_key.stdout is defined
+- name: Ensure secure permissions on DKIM private key
+  file:
+    path: /var/lib/rspamd/dkim/{{ mail_domain }}.{{ mail_dkim_selector }}.key
+    owner: _rspamd
+    group: _rspamd
+    mode: '0600'
+  when: dkim_file.stat.exists
 
-- name: Debug dkmi_key full content
-  debug:
-    var: dkim_key
-  when: dkim_key is defined
-
-- name: Display the DKIM public key text for DNS entry (already exists)
-  shell: cat /var/lib/rspamd/dkim/{{ mail_domain }}.{{ mail_dkim_selector }}.dnstxtentry.txt
-  register: dkim_public
-  changed_when: false
+- name: Read DKIM DNS TXT entry file if it exists
+  slurp:
+    src: /var/lib/rspamd/dkim/{{ mail_domain }}.{{ mail_dkim_selector }}.dnstxtentry.txt
+  register: dkim_txt_file
   when: dkim_key is not defined and dkim_file.stat.exists
+  ignore_errors: yes
 
-- name: Show existing DKIM key content if read
+- name: Decode and display the DKIM DNS TXT entry (generated or existing)
   debug:
-    msg: "{{ dkim_public.stdout }}"
-  when: dkim_public is defined
+    msg: |
+      {% if dkim_key is defined and dkim_key.rc == 0 %}
+      DKIM public key (newly generated):
+      {{ dkim_key.stdout | indent(2) }}
+      {% elif dkim_txt_file is defined and dkim_txt_file.content is defined %}
+      DKIM public key (from existing file):
+      {{ dkim_txt_file.content | b64decode | indent(2) }}
+      {% else %}
+      DKIM public key entry not found or could not be read.
+      {% endif %}
