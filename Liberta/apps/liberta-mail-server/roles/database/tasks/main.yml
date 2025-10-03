@@ -22,6 +22,7 @@
     query: "SHOW TABLES;"
   register: db_tables
   changed_when: false
+  check_mode: no
 
 - name: Debug db_tables content
   debug:
@@ -35,7 +36,11 @@
     db: "{{ mysql.mailserver.dbname }}"
     state: import
     target: /tmp/schema.sql
-  when: db_tables.results[0].rows | length == 0
+  when:
+    - db_tables is defined
+    - not db_tables.skipped
+    - db_tables.results[0].rows | length == 0
+  check_mode: no
 
 - name: Define domaindata list
   set_fact:
