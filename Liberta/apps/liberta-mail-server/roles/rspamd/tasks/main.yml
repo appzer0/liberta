@@ -67,6 +67,10 @@
         dest: /var/lib/rspamd/dkim/{{ mail_domain }}.{{ mail_dkim_selector }}.dnstxtentry.txt
   when: not dkim_file.stat.exists
 
+- name: Show key content
+  debug:
+    var: dkim_key
+
 - name: Ensure secure permissions on DKIM private key
   file:
     path: /var/lib/rspamd/dkim/{{ mail_domain }}.{{ mail_dkim_selector }}.key
@@ -85,7 +89,7 @@
 - name: Decode and display the DKIM DNS TXT entry (generated or existing)
   debug:
     msg: |
-      {% if dkim_key is defined and dkim_key.rc == 0 %}
+      {% if dkim_key is defined and (dkim_key.rc | default(0)) == 0 %}
       DKIM public key (newly generated):
       {{ dkim_key.stdout | indent(2) }}
       {% elif dkim_txt_file is defined and dkim_txt_file.content is defined %}
