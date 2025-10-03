@@ -5,8 +5,8 @@
 compatibility_level = 9999
 
 # Les paramètres les plus importants de Postfix :
-mydomain = "{{ mail_domain }}"
-myhostname = "{{ mail_fqdn }}"
+mydomain = {{ mail_domain }}
+myhostname = {{ mail_fqdn }}
 myorigin = $mydomain
 mydestination = localhost
 
@@ -15,7 +15,7 @@ inet_protocols = ipv4, ipv6
 inet_interfaces = all
 
 # Réseaux autorisés sans authentification : LAN, IP publiques :
-mynetworks = "{{ trusty_networks.ipv4_address }} {{ trusty_networks.ipv6_address }} {{ trusty_networks.lan_ipv4 }} {{ trusty_networks.loopbacks.ipv4 }} {{ trusty_networks.loopbacks.ipv6 }}"
+mynetworks = {{ trusty_networks.ipv4_address }} {{ trusty_networks.ipv6_address }} {{ trusty_networks.lan_ipv4 }} {{ trusty_networks.loopbacks.ipv4 }} {{ trusty_networks.loopbacks.ipv6 }}
 
 # Message d'accueil pour SMTP :
 smtpd_banner = "$myhostname ESMTP Bonjour et bienvenue sur le serveur mail de {{ pretty_domain }} - Hi and welcome on {{ pretty_domain }}'s mail server. {{ general_website_url }}"
@@ -109,6 +109,8 @@ smtpd_client_restrictions =
   permit_sasl_authenticated,
   check_client_access hash:/etc/postfix/rbl_override,
   reject_rbl_client zen.spamhaus.org,
+  reject_rbl_client bl.spamcop.net,
+  reject_rbl_client b.barracudacentral.org,
   reject_rhsbl_helo dbl.spamhaus.org,
   reject_rhsbl_sender dbl.spamhaus.org,
   permit
@@ -124,6 +126,7 @@ smtpd_recipient_restrictions =
   warn_if_reject,
   check_policy_service unix:private/quota-status,
   permit
+
 
 # Le délimiteur pour bénéficier d'alias dynamiques :
 recipient_delimiter = .
@@ -144,7 +147,7 @@ transport_maps = mysql:/etc/postfix/transport-sql.cf
 virtual_mailbox_maps = mysql:/etc/postfix/mailboxlogin-sql.cf
 smtpd_sender_login_maps = mysql:/etc/postfix/mailboxlogin-sql.cf
 virtual_mailbox_domains = mysql:/etc/postfix/domains-sql.cf
-virtual_mailbox_base = "{{ mail_data_rootdir }}"
+virtual_mailbox_base = {{ mail_data_rootdir }}
 
 # Configuration de rmilter pour passer les mails à rspamd :
 milter_default_action = accept
