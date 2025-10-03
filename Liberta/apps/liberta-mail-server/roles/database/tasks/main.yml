@@ -18,7 +18,7 @@
     login_host: "{{ mysql.mailserver.host }}"
     login_user: "{{ mysql.mailserver.username }}"
     login_password: "{{ mysql.mailserver.password }}"
-    db: "{{ mysql.mailserver.dbname }}"
+    login_db: "{{ mysql.mailserver.dbname }}"
     query: "SHOW TABLES;"
   register: db_tables
   changed_when: false
@@ -62,7 +62,7 @@
     login_host: "{{ mysql.mailserver.host }}"
     login_user: "{{ mysql.mailserver.username }}"
     login_password: "{{ mysql.mailserver.password }}"
-    db: "{{ mysql.mailserver.dbname }}"
+    login_db: "{{ mysql.mailserver.dbname }}"
     query: "INSERT IGNORE INTO `domain` (`id`, `domain`, `transport`) VALUES (%s, %s, %s)"
     params: "{{ item }}"
   loop: "{{ domaindata }}"
@@ -86,7 +86,7 @@
     login_host: "{{ mysql.mailserver.host }}"
     login_user: "{{ mysql.mailserver.username }}"
     login_password: "{{ mysql.mailserver.password }}"
-    db: "{{ mysql.mailserver.dbname }}"
+    login_db: "{{ mysql.mailserver.dbname }}"
     query: "INSERT IGNORE INTO `users` (`id`, `domain_id`, `email`, `crypt`, `quota`, `note`, `active`) VALUES (%s, %s, %s, %s, %s, %s, %s)"
     params: "{{ item }}"
   loop: "{{ usersdata }}"
