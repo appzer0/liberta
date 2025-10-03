@@ -65,6 +65,11 @@
 - name: Display the DKIM public key text for DNS entry (newly created)
   debug:
     msg: "{{ dkim_key.stdout }}"
+  when: dkim_key is defined and dkim_key.stdout is defined
+
+- name: Debug dkmi_key full content
+  debug:
+    var: dkim_key
   when: dkim_key is defined
 
 - name: Display the DKIM public key text for DNS entry (already exists)
