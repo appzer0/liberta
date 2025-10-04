@@ -49,8 +49,8 @@
     path: /var/lib/rspamd/dkim/{{ item }}
     state: absent
   loop:
-    - {{ mail_domain }}.{{ mail_dkim_selector }}.key
-    - {{ mail_domain }}.{{ mail_dkim_selector }}.dnstxtentry.txt
+    - "{{ mail_domain }}"."{{ mail_dkim_selector }}".key
+    - "{{ mail_domain }}"."{{ mail_dkim_selector }}".dnstxtentry.txt
 
 - name: Generate DKIM keys
   block:
