@@ -36,7 +36,7 @@ CREATE TABLE `users` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `domain_id` int(11) NOT NULL,
   `email` varchar(128) NOT NULL DEFAULT '',
-  `crypt` varchar(128) NOT NULL DEFAULT '',
+  `crypt` varchar(256) NOT NULL DEFAULT '',
   `quota` tinytext NOT NULL,
   `note` varchar(128) NOT NULL DEFAULT '',
   `active` tinyint(4) NOT NULL DEFAULT 1,
