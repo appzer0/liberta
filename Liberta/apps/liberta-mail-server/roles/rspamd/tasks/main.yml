@@ -44,10 +44,13 @@
     group: _rspamd
     mode: '0755'
 
-- name: Delete any existing DKIM key
+- name: Delete any existing DKIM key and DNS entry txt file
   ansible.builtin.file:
-    path: /var/lib/rspamd/dkim/{{ mail_domain }}.{{ mail_dkim_selector }}.key
+    path: /var/lib/rspamd/dkim/{{ item }}
     state: absent
+  loop:
+    - {{ mail_domain }}.{{ mail_dkim_selector }}.key
+    - {{ mail_domain }}.{{ mail_dkim_selector }}.dnstxtentry.txt
 
 - name: Generate DKIM keys
   block:
