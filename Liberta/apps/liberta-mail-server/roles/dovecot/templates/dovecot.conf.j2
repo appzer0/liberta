@@ -29,8 +29,8 @@ protocol lmtp {
 }
 
 # Emplacement des boites e-mail :
-mail_location = maildir:"{{ mail_data_rootdir }}"/%d/%n/Maildir
-mail_home = "{{ mail_data_rootdir }}"/%d/%n/Maildir
+mail_location = maildir:{{ mail_data_rootdir }}/%d/%n/Maildir
+mail_home = {{ mail_data_rootdir }}/%d/%n/Maildir
 
 # Configuration SSL (algos) :
 ssl = yes

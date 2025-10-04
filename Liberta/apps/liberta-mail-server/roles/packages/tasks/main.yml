@@ -3,6 +3,7 @@
   apt:
     update_cache: yes
     name:
+      - argon2
       - libsodium23
       - certbot
       - pwgen
