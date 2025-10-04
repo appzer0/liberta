@@ -4,7 +4,7 @@
     src: "{{ item }}.j2"
     dest: "/etc/postfix/{{ item }}"
     mode: 0640
-  with_items:
+  loop:
   - alias-sql.cf
   - domains-sql.cf
   - mailboxlogin-sql.cf
@@ -18,16 +18,16 @@
     path: "/etc/postfix/{{ item }}"
     state: touch
     mode: 640
-  with_items:
+  loop:
     - transport
     - rbl_override
     - aliases
 
 - name: Delete any existing .db files for incoming postmap
   ansible.builtin.file:
-    path: /etc/postfix/{{ item }}.db
+    path: "/etc/postfix/{{ item }}.db"
     state: absent
-    with_items:
+  loop:
       - aliases
       - rbl_override
       - transport
@@ -36,7 +36,7 @@
   command:
     cmd: "postmap /etc/postfix/{{ item }}"
     creates: "/etc/postfix/{{ item }}.db"
-  with_items:
+  loop:
     - transport
     - rbl_override
     - aliases
