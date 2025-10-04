@@ -89,7 +89,7 @@
       - ["", "1", "liberta@liberta.email", "{ARGON2ID}$argon2id$v=19$m=65536,t=3,p=1$/k+sSIrjR3xXqckR+lU+cw$7jo8U3URCbH20ghVLChPEz0PPxFoer6qyKyORfQOBTk", "10G", "!BBB!", "1"]
 
 - name: Add rows out of a loop to users table (idempotent)
-  community.mysql.mysql_query:1
+  community.mysql.mysql_query:
     login_host: "{{ mysql.mailserver.host }}"
     login_user: "{{ mysql.mailserver.username }}"
     login_password: "{{ mysql.mailserver.password }}"
