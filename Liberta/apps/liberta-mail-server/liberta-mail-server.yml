@@ -22,10 +22,6 @@
 
 - hosts: production
   tasks:
-    - name: Compile with postmap our 3 files one last time
-      command:
-        cmd: "postmap /etc/postfix/rbl_override && postmap /etc/postfix/transport && postmap /etc/postfix/aliases"
-
     - name: Restart all our stuff
       command:
         cmd: "systemctl restart postfix dovecot nginx rspamd"

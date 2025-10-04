@@ -23,6 +23,15 @@
     - rbl_override
     - aliases
 
+- name: Delete any existing .db files for incoming postmap
+  ansible.builtin.file:
+    path: /etc/postfix/{{ item }}.db
+    state: absent
+    with_items:
+      - aliases
+      - rbl_override
+      - transport
+        
 - name: Run postmap on all files for postfix to parse
   command:
     cmd: "postmap /etc/postfix/{{ item }}"
