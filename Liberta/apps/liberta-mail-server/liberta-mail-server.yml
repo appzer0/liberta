@@ -22,6 +22,12 @@
 
 - hosts: production
   tasks:
+    - name: Compile with postmap our 3 files one last time
+      cmd: "postmap /etc/postfix/rbl_override && postmap /etc/postfix/transport && postmap /etc/postfix/aliases"
+
+    - name: Restart all our stuff
+      cmd: "systemctl restart postfix dovecot nginx rspamd"
+
     - debug:
         msg:
           - "Installation complete."
@@ -33,3 +39,8 @@
           - "Internal IPv4 : {{ trusty_networks.lan_ipv4 }}"
           - "DKIM selector : {{ mail_dkim_selector }}"
           - "Mail location : {{ mail_data_rootdir }}"
+          - "---"
+          - "Create passwords with: echo -n 'somepassword' | argon2 "$(pwgen -Ans 64 1)" -id -t 3 -l 32 -p 1 -m 16 -e"
+          - "It will show the Argon2ID hash to insert into the SQL table `users`. Prefix it with the keyword: {ARGON2ID}"
+          - "---"
+          - "Mail logs are all in /var/log/maillog or /var/log/mail.log"

@@ -52,7 +52,7 @@ submission inet n       -       -       -       -       smtpd
   -o milter_macro_daemon_name=ORIGINATING
   -o smtpd_relay_restrictions=permit_sasl_authenticated,reject
   -o cleanup_service_name=authclean
-authclean unix  n       -       -       -       0       cleanup
+authclean unix  n       -       n       -       0       cleanup
   -o header_checks=pcre:/etc/postfix/outgoing_mail_header_filters
   -o nested_header_checks=
 dovecot   unix  -       n       n       -       -       pipe
