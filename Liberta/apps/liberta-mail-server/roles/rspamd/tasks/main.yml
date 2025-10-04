@@ -44,17 +44,17 @@
     group: _rspamd
     mode: '0755'
 
-- name: Check if DKIM key already exists
-  stat:
+- name: Delete any existing DKIM key
+  ansible.builtin.file:
     path: /var/lib/rspamd/dkim/{{ mail_domain }}.{{ mail_dkim_selector }}.key
-  register: dkim_file
+    state: absent
 
-- name: Generate DKIM keys if absent
+- name: Generate DKIM keys
   block:
     - name: Create DKIM keys
       shell: >
-        rspamadm dkim_keygen -d "{{ mail_domain }}"
-        -s "{{ mail_dkim_selector }}"
+        rspamadm dkim_keygen -d {{ mail_domain }}
+        -s {{ mail_dkim_selector }}
         -k /var/lib/rspamd/dkim/{{ mail_domain }}.{{ mail_dkim_selector }}.key
       register: dkim_key
       changed_when: dkim_key.rc == 0
@@ -65,7 +65,6 @@
       copy:
         content: "{{ dkim_key.stdout }}"
         dest: /var/lib/rspamd/dkim/{{ mail_domain }}.{{ mail_dkim_selector }}.dnstxtentry.txt
-  when: not dkim_file.stat.exists
 
 - name: Show key content
   debug:
@@ -77,4 +76,3 @@
     owner: _rspamd
     group: _rspamd
     mode: '0600'
-  when: dkim_file.stat.exists
