@@ -57,6 +57,14 @@
     group: root
     mode: '0755'
 
+- name: Copy default sieve script to move spam
+  copy:
+    src: "default.sieve"
+    dest: "/etc/dovecot/sieve/default.sieve"
+    owner: root
+    group: root
+    mode: '0644'
+      
 - name: Copy spam-learning shell & Sieve scripts + compile rules
   block:
     - name: Copy rspamd learn shell scripts
