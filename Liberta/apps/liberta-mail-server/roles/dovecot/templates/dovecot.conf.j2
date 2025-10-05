@@ -14,18 +14,20 @@ service imap-login {
 	}
 }
 
-# Protocoles IMAP : contournement de certains bugs et contraintes + quota :
+# Protocoles IMAP : contournement de certains bugs et contraintes
+# + quota + alias :
 protocol imap {
 	imap_client_workarounds = delay-newmail tb-extra-mailbox-sep
-	mail_plugins = $mail_plugins imap_quota imap_sieve
+	mail_plugins = $mail_plugins imap_quota imap_sieve mailbox_alias
 }
 
-# Protocoles LDA/LMTP : activation quota + règles Sieve de déplacement des Spams :
+# Protocoles LDA/LMTP : activation quota + règles Sieve de déplacement
+# des Spams + alias :
 protocol lda {
-	mail_plugins = $mail_plugins quota sieve
+	mail_plugins = $mail_plugins quota sieve mailbox_alias
 }
 protocol lmtp {
-	mail_plugins = $mail_plugins quota sieve
+	mail_plugins = $mail_plugins quota sieve mailbox_alias
 }
 
 # Emplacement des boites e-mail :
@@ -92,14 +94,100 @@ userdb {
 	args = /etc/dovecot/dovecot-sql.conf.ext
 }
 
-# Le quota par défaut si aucun paramètre ne figure dans le fichier des users
-# La corbeille a 10% de plus du total du quota pour permettre à l'utilisateur de
-# nettoyer sa boite si elle est hors quota.
-# Messages limités à 30 Mo max, mais la taille du SPAM est ignorée car nettoyé régulièrement.
-# + Activation des règles Sieve pour déplacement des Spams :
+# Le quota par défaut si aucun paramètre ne figure dans le fichier des
+# users. La corbeille a 10% de plus du total du quota pour permettre au
+# user de nettoyer sa boite si elle est hors quota.
+# Messages limités à 30 Mo max, mais la taille du SPAM est ignorée car
+# nettoyé régulièrement + règles Sieve pour déplacement des Spams :
 plugin {
 	quota = maildir:User quota
 	quota_rule = *:storage=5G
 	quota_rule2 = Trash:storage=+10%%
 	quota_rule3 = SPAM:ignore
+	quota_max_mail_size = 30M
+	quota_over_flag_value = TRUE
+	quota_grace = 10%%
+	quota_status_success = DUNNO
+	quota_status_nouser = DUNNO
+	quota_status_overquota = "552 5.2.2 Mailbox is full"
+	
+	# Règles des plugins pour Sieve :
+	sieve = /etc/dovecot/sieve/default.sieve
+	sieve_pipe_bin_dir = /etc/dovecot/sieve
+	sieve_global_extensions = +vnd.dovecot.pipe
+	sieve_plugins = sieve_imapsieve sieve_extprograms
+	
+	# Apprendre le spam en déplaçant vers le Spam :
+	imapsieve_mailbox1_name = Junk
+	imapsieve_mailbox1_causes = COPY
+	imapsieve_mailbox1_before = file:/etc/dovecot/sieve/learn-spam.sieve
+	
+	# Apprendre le ham en déplaçant depuis le Spam vers la réception :
+	imapsieve_mailbox2_name = INBOX
+	imapsieve_mailbox2_from = Junk
+	imapsieve_mailbox2_causes = COPY
+	imapsieve_mailbox2_before = file:/etc/dovecot/sieve/learn-ham.sieve
+	
+	# Création d'alias pour éviter des dossiers classiques en doublon :
+	mailbox_alias_old = Trash
+	mailbox_alias_new = Deleted Items
+	mailbox_alias_old2 = Sent
+	mailbox_alias_new2 = Sent Items
 }
+
+service quota-status {
+	executable = quota-status -p postfix
+	unix_listener /var/spool/postfix/private/quota-status {
+		user = postfix
+	}
+	client_limit = 1
+}
+
+# Format des logs :
+login_log_format_elements = user=<%u> method=%m rip=%r lip=%l mpid=%e %c
+login_log_format = %$: %s
+deliver_log_format = msgid=%m: from=%f subject=%s size=%p %$
+
+# Stockage des mails via NFS (stockage ZFS) + indexation :
+mail_nfs_storage = yes
+lock_method = dotlock
+dotlock_use_excl = yes
+mmap_disable=yes
+mail_fsync=always
+mail_nfs_index = yes
+
+# On inscrit les utilisateurices à tous les dossiers classiques ainsi
+# qu'aux dossiers perso (Shopping, etc.) et on auto-nettoie le Spam et
+# la corbeille après 60 jours :
+namespace inbox {
+	mailbox "*" {
+		auto = subscribe
+	}
+	mailbox "Sent" { 
+		special_use = \Sent
+		auto = subscribe
+	}
+	mailbox "Junk" {
+		special_use = \Junk
+		auto = subscribe
+		autoexpunge = 60d
+	}
+	mailbox "Drafts" {
+		special_use = \Drafts
+		auto = subscribe
+        }
+	mailbox "Trash" { 
+		special_use = \Trash
+		auto = subscribe
+		autoexpunge = 60d
+	}
+	mailbox "Archives" {
+		special_use = \Archive
+		auto = subscribe
+	}
+	inbox = yes
+}
+
+# On les abonne aussi aux sous-dossiers perso :
+lda_mailbox_autosubscribe = yes
+
