@@ -11,23 +11,23 @@
 - hosts: production
   roles:
     - role: packages
-    - tags: packages
+      tags: packages
     - role: common
-    - tags: common
+      tags: common
     - role: bind9
-    - tags: bind9
+      tags: bind9
     - role: nginx
-    - tags: nginx
+      tags: nginx
     - role: certbot
-    - tags: certbot
+      tags: certbot
     - role: database
-    - tags: database
+      tags: database
     - role: postfix
-    - tags: postfix
+      tags: postfix
     - role: dovecot
-    - tags: dovecot
+      tags: dovecot
     - role: rspamd
-    - tags: rspamd
+      tags: rspamd
 
 - hosts: production
   tasks:
