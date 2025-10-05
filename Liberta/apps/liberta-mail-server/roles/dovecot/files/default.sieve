@@ -16,5 +16,5 @@ if address :regex "to" "^([a-z0-9]+)\..*@.*$" {
 
   # Déplace le mail dans le dossier INBOX.PREFIX (créé si inexistant)
   fileinto :create "INBOX.${prefix}";
-
+}
 
