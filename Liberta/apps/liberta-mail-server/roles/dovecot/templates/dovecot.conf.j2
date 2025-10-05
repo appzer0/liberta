@@ -18,21 +18,24 @@ service imap-login {
 # + quota + alias + chiffrement :
 protocol imap {
 	imap_client_workarounds = delay-newmail tb-extra-mailbox-sep
-	mail_plugins = $mail_plugins imap_quota imap_sieve mailbox_alias crypt
+	mail_plugins = $mail_plugins imap_quota imap_sieve mailbox_alias mail_crypt
 }
 
 # Protocoles LDA/LMTP : activation quota + règles Sieve de déplacement
 # des Spams + alias + chiffrement :
 protocol lda {
-	mail_plugins = $mail_plugins quota sieve mailbox_alias crypt
+	mail_plugins = $mail_plugins quota sieve mailbox_alias mail_crypt
 }
 protocol lmtp {
-	mail_plugins = $mail_plugins quota sieve mailbox_alias crypt
+	mail_plugins = $mail_plugins quota sieve mailbox_alias mail_crypt
 }
 
 # Emplacement des boites e-mail :
 mail_location = maildir:{{ mail_data_rootdir }}/%d/%n/Maildir
 mail_home = {{ mail_data_rootdir }}/%d/%n/Maildir
+
+# Emplacement des attributs de chaque boite mail :
+mail_attribute_dict = file:{{ mail_data_rootdir }}/%d/%n/dovecot-attributes
 
 # Configuration SSL (algos) :
 ssl = yes
@@ -117,17 +120,12 @@ plugin {
 	sieve_global_extensions = +vnd.dovecot.pipe
 	sieve_plugins = sieve_imapsieve sieve_extprograms
 	
-	# Règles du plugin crypt (chiffrement du stockage des mails) :
+	# Règles du plugin mail_crypt (chiffrement du stockage des mails) :
 	mail_crypt_curve = secp521r1
 	mail_crypt_save_version = 2
-	crypt_secret = private_key_file:%n
-	crypt_secret2 = public_key_file:%n
-	private_key_file = {{ mail_data_rootdir }}/%d/%n/keys/private.pem
-	public_key_file = {{ mail_data_rootdir }}/%d/%n/keys/public.pem
+	mail_crypt_global_private_key = <{{ mail_data_rootdir }}/%d/%n/keys/private.pem
+	mail_crypt_global_public_key = <{{ mail_data_rootdir }}/%d/%n/keys/public.pem
 	mail_crypt_require_encrypted_user_key = yes
-	crypt_key_password_scheme = plain
-	crypt_default = yes
-	crypt_auto_cipher = yes
 	
 	# Apprendre le spam en déplaçant vers le Spam :
 	imapsieve_mailbox1_name = Junk
