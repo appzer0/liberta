@@ -19,6 +19,14 @@
     owner: "{{ vmail.user }}"
     group: "{{ vmail.group }}"
 
+- name: Create the main SSL key pairs directory
+  file:
+    path: "{{ mail_data_rootdir }}/keys"
+    state: directory
+    owner: "{{ vmail.user }}"
+    group: "{{ vmail.group }}"
+    mode: '0640'
+
 - name: Add NFS mountpoint to /etc/fstab
   lineinfile:
     path: '/etc/fstab'

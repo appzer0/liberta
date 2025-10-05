@@ -15,19 +15,19 @@ service imap-login {
 }
 
 # Protocoles IMAP : contournement de certains bugs et contraintes
-# + quota + alias :
+# + quota + alias + chiffrement :
 protocol imap {
 	imap_client_workarounds = delay-newmail tb-extra-mailbox-sep
-	mail_plugins = $mail_plugins imap_quota imap_sieve mailbox_alias
+	mail_plugins = $mail_plugins imap_quota imap_sieve mailbox_alias crypt
 }
 
 # Protocoles LDA/LMTP : activation quota + règles Sieve de déplacement
-# des Spams + alias :
+# des Spams + alias + chiffrement :
 protocol lda {
-	mail_plugins = $mail_plugins quota sieve mailbox_alias
+	mail_plugins = $mail_plugins quota sieve mailbox_alias crypt
 }
 protocol lmtp {
-	mail_plugins = $mail_plugins quota sieve mailbox_alias
+	mail_plugins = $mail_plugins quota sieve mailbox_alias crypt
 }
 
 # Emplacement des boites e-mail :
@@ -94,12 +94,12 @@ userdb {
 	args = /etc/dovecot/dovecot-sql.conf.ext
 }
 
-# Le quota par défaut si aucun paramètre ne figure dans le fichier des
-# users. La corbeille a 10% de plus du total du quota pour permettre au
-# user de nettoyer sa boite si elle est hors quota.
-# Messages limités à 30 Mo max, mais la taille du SPAM est ignorée car
-# nettoyé régulièrement + règles Sieve pour déplacement des Spams :
 plugin {
+	# Le quota par défaut si aucun paramètre ne figure dans le fichier des
+	# users. La corbeille a 10% de plus du total du quota pour permettre au
+	# user de nettoyer sa boite si elle est hors quota.
+	# Messages limités à 30 Mo max, mais la taille du SPAM est ignorée car
+	# nettoyé régulièrement :
 	quota = maildir:User quota
 	quota_rule = *:storage=5G
 	quota_rule2 = Trash:storage=+10%%
@@ -111,11 +111,23 @@ plugin {
 	quota_status_nouser = DUNNO
 	quota_status_overquota = "552 5.2.2 Mailbox is full"
 	
-	# Règles des plugins pour Sieve :
+	# Règles du plugin pour Sieve :
 	sieve = /etc/dovecot/sieve/default.sieve
 	sieve_pipe_bin_dir = /etc/dovecot/sieve
 	sieve_global_extensions = +vnd.dovecot.pipe
 	sieve_plugins = sieve_imapsieve sieve_extprograms
+	
+	# Règles du plugin crypt (chiffrement du stockage des mails) :
+	mail_crypt_curve = secp521r1
+	mail_crypt_save_version = 2
+	crypt_secret = private_key_file:%n
+	crypt_secret2 = public_key_file:%n
+	private_key_file = {{ mail_data_rootdir }}/%d/%n/keys/private.pem
+	public_key_file = {{ mail_data_rootdir }}/%d/%n/keys/public.pem
+	mail_crypt_require_encrypted_user_key
+	crypt_key_password_scheme = plain
+	crypt_default = yes
+	crypt_auto_cipher = yes
 	
 	# Apprendre le spam en déplaçant vers le Spam :
 	imapsieve_mailbox1_name = Junk
