@@ -124,7 +124,7 @@ plugin {
 	crypt_secret2 = public_key_file:%n
 	private_key_file = {{ mail_data_rootdir }}/%d/%n/keys/private.pem
 	public_key_file = {{ mail_data_rootdir }}/%d/%n/keys/public.pem
-	mail_crypt_require_encrypted_user_key
+	mail_crypt_require_encrypted_user_key = yes
 	crypt_key_password_scheme = plain
 	crypt_default = yes
 	crypt_auto_cipher = yes
