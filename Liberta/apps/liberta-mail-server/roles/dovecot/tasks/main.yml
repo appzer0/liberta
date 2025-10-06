@@ -33,6 +33,33 @@
     line: "{{ nfs.server_ipv4 }}:{{ nfs.server_share }} {{ mail_data_rootdir }} nfs auto 0 0"
     state: present
 
+- name: Make sure systemd is reloaded after editing /etc/fstab
+  ansible.builtin.systemd_service:
+    daemon_reload: true
+
+- name: Mount NFS volume for mail data
+  ansible.posix.mount:
+    path: {{ mail_data_rootdir }}
+    state: mounted
+
+- name: Copy default systemd file to /etc/system/system
+  copy:
+    src: /lib/systemd/system/dovecot.service
+    dest: /etc/systemd/system/dovecot.service
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Modify SystemProtect problematic parameter in dovecot.service
+  lineinfile:
+    path: /etc/systemd/system/dovecot.service
+    regexp: '^ProtectSystem=.*$'
+    line: ProtectSystem=false
+
+- name: Make sure systemd is reloaded after editing our dovecot.service
+  ansible.builtin.systemd_service:
+    daemon_reload: true
+
 - name: Install Dovecot config files
   template:
     src: "{{ item }}.j2"
