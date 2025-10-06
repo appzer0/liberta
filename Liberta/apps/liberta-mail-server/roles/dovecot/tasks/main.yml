@@ -39,7 +39,7 @@
 
 - name: Mount NFS volume for mail data
   ansible.posix.mount:
-    src: "{{ nfs.server_ipv4 }}":"{{ nfs.server_share }}"
+    src: "{{ nfs.server_ipv4 }}:{{ nfs.server_share }}"
     path: "{{ mail_data_rootdir }}"
     opts: auto
     state: mounted
