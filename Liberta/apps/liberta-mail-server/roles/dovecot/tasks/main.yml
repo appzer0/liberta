@@ -45,13 +45,14 @@
     state: mounted
     fstype: nfs
 
-- name: Copy default systemd file to /etc/systemd/system
+- name: Copy default on-target systemd file to /etc/systemd/system
   copy:
     src: /lib/systemd/system/dovecot.service
     dest: /etc/systemd/system/dovecot.service
     owner: root
     group: root
     mode: '0644'
+    remote_src: yes
 
 - name: Modify SystemProtect problematic parameter in dovecot.service
   lineinfile:
