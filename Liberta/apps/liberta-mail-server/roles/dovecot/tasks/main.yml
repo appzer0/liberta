@@ -130,8 +130,9 @@
 
     - name: Compile sieve scripts
       command:
-        cmd: "sievec /etc/dovecot/sieve/learn-{{ item }}.sieve"
-        creates: "/etc/dovecot/sieve/learn-{{ item }}.svbin"
+        cmd: "sievec /etc/dovecot/sieve/{{ item }}.sieve"
+        creates: "/etc/dovecot/sieve/{{ item }}.svbin"
       loop:
-        - ham
-        - spam
+        - learn-ham
+        - learn-spam
+        - default
