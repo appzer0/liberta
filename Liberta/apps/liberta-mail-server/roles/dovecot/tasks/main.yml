@@ -39,10 +39,10 @@
 
 - name: Mount NFS volume for mail data
   ansible.posix.mount:
-    path: {{ mail_data_rootdir }}
+    path: "{{ mail_data_rootdir }}"
     state: mounted
 
-- name: Copy default systemd file to /etc/system/system
+- name: Copy default systemd file to /etc/systemd/system
   copy:
     src: /lib/systemd/system/dovecot.service
     dest: /etc/systemd/system/dovecot.service
