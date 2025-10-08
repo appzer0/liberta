@@ -17,11 +17,11 @@ trusty_networks:
     ipv6: "[::1]/128"
   dns_trusty_network: "192.168.10.0/24"
   dns_forwarded_ipv4:
-    - "185.12.64.1"
-    - "185.12.64.2"
+    - "213.133.98.98"
+    - "213.133.99.99"
   dns_forwarded_ipv6:
-    - "2a01:4ff:ff00::add:1"
-    - "2a01:4ff:ff00::add:2"
+    - "2a01:4f8:c0c:999::1"
+    - "2a01:4f8:c0c:999::2"
 
 # Redis config group
 redis:
