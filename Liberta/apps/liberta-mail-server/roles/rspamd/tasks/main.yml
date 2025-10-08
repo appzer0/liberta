@@ -14,6 +14,16 @@
     src: redis.conf.j2
     dest: /etc/rspamd/local.d/redis.conf
 
+- name: Copy actions.conf score file
+  copy:
+    src: actions.conf
+    dest: /etc/rspamd/local.d/actions.conf
+
+- name: Copy worker-normal.inc perfs file
+  copy:
+    src: worker-normal.inc
+    dest: /etc/rspamd/local.d/worker-normal.inc
+
 - name: First hash the rspamd web interface password
   shell: "rspamadm pw -p {{ rspamd_web_access }}"
   register: rspamd_web_access_hashed
@@ -63,6 +73,7 @@
         rspamadm dkim_keygen -d {{ mail_domain }}
         -s {{ mail_dkim_selector }}
         -k /var/lib/rspamd/dkim/{{ mail_domain }}.{{ mail_dkim_selector }}.key
+      when: not dkim_key_stat.stat.exists
       register: dkim_key
       changed_when: dkim_key.rc == 0
       failed_when: dkim_key.rc != 0
