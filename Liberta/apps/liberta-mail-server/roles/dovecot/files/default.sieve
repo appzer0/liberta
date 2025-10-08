@@ -18,5 +18,5 @@ if header :contains "X-Spam" "Yes" {
 # banque.alias@liberta.email -> ./Banque/
 # banque-visa.alias@liberta.email -> ./Banque/Visa/
 # shopping-amazon-france.alias@liberta.email -> ./Shopping/Amazon/France/
-extprogram :path "/etc/dovecot/sieve/mail_move_dynamic.py";
+fileinto :create "INBOX.to-process";
 stop;

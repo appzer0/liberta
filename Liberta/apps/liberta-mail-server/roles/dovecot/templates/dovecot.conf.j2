@@ -118,7 +118,7 @@ plugin {
 	sieve = /etc/dovecot/sieve/default.sieve
 	sieve_pipe_bin_dir = /etc/dovecot/sieve
 	sieve_global_extensions = +vnd.dovecot.pipe
-	sieve_plugins = sieve_imapsieve sieve_extprograms
+	sieve_plugins = sieve_imapsieve
 	
 	# Règles du plugin mail_crypt (chiffrement du stockage des mails) :
 	mail_crypt_curve = secp521r1
@@ -189,6 +189,9 @@ namespace inbox {
 	mailbox "Archives" {
 		special_use = \Archive
 		auto = subscribe
+	}
+	mailbox "to-process" {
+		auto = no
 	}
 	inbox = yes
 }

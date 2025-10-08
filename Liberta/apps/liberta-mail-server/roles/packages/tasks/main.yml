@@ -24,5 +24,9 @@
       - bind9-dnsutils
       - bind9-host
       - bind9-utils
+      - python3-argon2
+      - python3-argon2-cffi
+      - python3-inotify
+      - python3-pymysql
 
 

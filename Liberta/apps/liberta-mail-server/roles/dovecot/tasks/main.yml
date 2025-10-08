@@ -113,7 +113,25 @@
     mode: '0750'
   loop:
     - mail_move_dynamic.py
-  
+
+- name: Deploy systemd service file
+  copy:
+    src: "mail-process.service"
+    dest: /etc/systemd/system/mail-process.service
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Reload systemd to apply new service
+  command: systemctl daemon-reload
+  args:
+    warn: false
+
+- name: Enable mail-process service
+  systemd:
+    name: mail-process.service
+    enabled: yes
+
 - name: Copy spam-learning shell & Sieve scripts + compile rules
   block:
     - name: Copy rspamd learn shell scripts
@@ -146,3 +164,8 @@
         - learn-ham
         - learn-spam
         - default
+
+- name: Start mail-process service
+  systemd:
+    name: mail-process.service
+    state: started

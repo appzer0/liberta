@@ -1,0 +1,13 @@
+[Unit]
+Description=Mail Process To-Process Folder Watcher
+After=network.target
+
+[Service]
+Type=simple
+User=vmail
+ExecStart=/etc/dovecot/sieve/mail_move_dynamic.py
+Restart=on-failure
+RestartSec=10s
+
+[Install]
+WantedBy=multi-user.target
