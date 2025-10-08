@@ -10,13 +10,9 @@ options {
     directory "/var/cache/bind";
     recursion yes;
     allow-query { goodclients; };
-    forwarders {
-        "{{ trusty_networks.dns_forwarded_ipv4[0] }}";
-        "{{ trusty_networks.dns_forwarded_ipv4[1] }}";
-        "{{ trusty_networks.dns_forwarded_ipv6[0] }}";
-        "{{ trusty_networks.dns_forwarded_ipv6[1] }}";
-    };
-    forward only;
+    allow-recursion { {{ trusty_networks.loopbacks.ipv4 }}; {{ trusty_networks.dns_trusty_network }}; };
+    listen-on { {{ trusty_networks.loopbacks.ipv4 }}; {{ trusty_networks.lan_ipv4 }}; };
+    allow-query { any; };
     dnssec-validation yes;
 
     auth-nxdomain no;    # conform to RFC1035
