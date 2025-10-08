@@ -1,18 +1,22 @@
-require ["fileinto", "mailbox", "regex", "variables"];
+require ["fileinto", "mailbox"];
 
 # Déplacement des spams dans Junk
 if header :contains "X-Spam-Flag" "YES" {
     fileinto :create "Junk";
+    stop;
 }
 
 if header :contains "X-Spam" "Yes" {
     fileinto :create "Junk";
-}
-
-# Déplacement dynamique basé sur préfixe avant le point
-if address :regex "to" "^([a-z0-9]+)\..*@.*$" {
-    set "prefix" "${1}";
-    fileinto :create "INBOX.${prefix}";
     stop;
 }
 
+# Déplacement dynamique dans des nouveaux sous-dossiers basés sur
+# préfixes avec ou sans tirets avant le point, via un script Python:
+# Exemples (3 niveaux max de sous-dossiers) :
+# alias@liberta.email -> ./ # (INBOX)
+# banque.alias@liberta.email -> ./Banque/
+# banque-visa.alias@liberta.email -> ./Banque/Visa/
+# shopping-amazon-france.alias@liberta.email -> ./Shopping/Amazon/France/
+pipe :flags "user" "/etc/dovecot/sieve/mail_move_dynamic.py";
+stop;

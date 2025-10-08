@@ -92,18 +92,28 @@
   file:
     path: /etc/dovecot/sieve
     state: directory
-    owner: root
-    group: root
-    mode: '0755'
+    owner: "{{ vmail.user }}"
+    group: "{{ vmail.group }}"
+    mode: '0750'
 
-- name: Copy default sieve script to move spam
+- name: Copy default sieve script to move spam and create dynamic subfolders
   copy:
     src: "default.sieve"
     dest: "/etc/dovecot/sieve/default.sieve"
-    owner: root
-    group: root
-    mode: '0644'
-      
+    owner: "{{ vmail.user }}"
+    group: "{{ vmail.group }}"
+    mode: '0750'
+
+- name: Install Python script for automatic creation of subfolders
+  template:
+    src: "{{ item }}.j2"
+    dest: "/etc/dovecot/sieve/{{ item }}"
+    owner: "{{ vmail.user }}"
+    group: "{{ vmail.group }}"
+    mode: '0750'
+  loop:
+    - mail_move_dynamic.py
+  
 - name: Copy spam-learning shell & Sieve scripts + compile rules
   block:
     - name: Copy rspamd learn shell scripts
@@ -112,7 +122,7 @@
         dest: "/etc/dovecot/sieve/rspamd-learn-{{ item }}.sh"
         owner: "{{ vmail.user }}"
         group: "{{ vmail.group }}"
-        mode: '0700'
+        mode: '0750'
       loop:
       - ham
       - spam
@@ -121,9 +131,9 @@
       copy:
         src: "learn-{{ item }}.sieve"
         dest: "/etc/dovecot/sieve/learn-{{ item }}.sieve"
-        owner: root
-        group: root
-        mode: '0644'
+        owner: "{{ vmail.user }}"
+        group: "{{ vmail.group }}"
+        mode: '0750'
       loop:
       - ham
       - spam
