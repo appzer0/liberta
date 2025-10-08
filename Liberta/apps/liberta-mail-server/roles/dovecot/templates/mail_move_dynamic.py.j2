@@ -1,0 +1,96 @@
+#!/usr/bin/env python3
+import sys
+import os
+import email
+from email.utils import getaddresses
+from pathlib import Path
+import time
+import shutil
+
+def capitalize_first(s):
+    return s[0].upper() + s[1:] if s else s
+
+def extract_subfolders(local_part):
+    # On vérifie la présence d’un point
+    if '.' not in local_part:
+        # Pas de préfixe → abandon propre
+        return []
+
+    main_part = local_part.split('.', 1)[0]
+    parts = main_part.split('-')
+    return parts[:3]
+
+def build_mailbox_path(subfolders):
+    cap_parts = [capitalize_first(p) for p in subfolders]
+    if not cap_parts:
+        return None
+    return "INBOX." + ".".join(cap_parts)
+
+def create_and_subscribe_mailbox_maildir(user_maildir, mailbox):
+    mailbox_path = user_maildir / mailbox.replace('.', '/')
+    subdirs = ['cur', 'new', 'tmp']
+    for d in [mailbox_path] + [mailbox_path / sd for sd in subdirs]:
+        if not d.exists():
+            d.mkdir(parents=True, exist_ok=True)
+
+def write_mail_to_maildir(mail_content, mailbox_path):
+    try:
+        timestamp = time.time()
+        unique_name = f"{int(timestamp)}.{os.getpid()}_{os.uname().nodename}"
+        tmp_path = mailbox_path / 'tmp' / unique_name
+        new_path = mailbox_path / 'new' / unique_name
+
+        with open(tmp_path, 'w') as f:
+            f.write(mail_content)
+
+        shutil.move(str(tmp_path), str(new_path))
+        return True
+    except Exception:
+        return False
+
+def main():
+    try:
+        mail_content = sys.stdin.read()
+        msg = email.message_from_string(mail_content)
+
+        recipients = []
+        for hdr in ['To', 'Cc', 'Bcc']:
+            addrs = getaddresses([msg.get(hdr, "")])
+            for _, addr in addrs:
+                addr = addr.lower()
+                if addr.endswith("@{{ mail_domain }}"):
+                    recipients.append(addr)
+
+        if not recipients:
+            # Pas d’adresse ciblée @{{ mail_domain }}
+            sys.exit(1)
+
+        user = os.environ.get("USER")
+        if not user:
+            # Pas d’utilisateur, on sort en erreur
+            sys.exit(1)
+
+        maildir_base = Path(f"/{{ mail_data_rootdir }}/{{ mail_domain }}/{user}/Maildir")
+
+        for rcpt in recipients:
+            local = rcpt.split('@')[0]
+
+            subfolders = extract_subfolders(local)
+            if not subfolders:
+                # Pas de préfixe, pas de dossier dynamique : on ne bouge pas le mail ici
+                continue
+
+            mailbox = build_mailbox_path(subfolders)
+            if mailbox is None:
+                continue
+
+            create_and_subscribe_mailbox_maildir(maildir_base, mailbox)
+            mailbox_path = maildir_base / mailbox.replace('.', '/')
+
+            if not write_mail_to_maildir(mail_content, mailbox_path):
+                # Échec d’écriture, catastrophe
+                sys.exit(1)
+
+        sys.exit(0)
+if __name__ == "__main__":
+    main()
