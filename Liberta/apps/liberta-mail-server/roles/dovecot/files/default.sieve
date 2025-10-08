@@ -1,4 +1,4 @@
-require ["fileinto", "mailbox"];
+require ["fileinto", "mailbox", "vnd.dovecot.pipe"];
 
 # Déplacement des spams dans Junk
 if header :contains "X-Spam-Flag" "YES" {
