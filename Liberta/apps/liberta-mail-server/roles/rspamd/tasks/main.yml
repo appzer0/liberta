@@ -73,7 +73,7 @@
         rspamadm dkim_keygen -d {{ mail_domain }}
         -s {{ mail_dkim_selector }}
         -k /var/lib/rspamd/dkim/{{ mail_domain }}.{{ mail_dkim_selector }}.key
-      when: not dkim_key_stat.stat.exists
+      when: not dkim_key.stat.exists
       register: dkim_key
       changed_when: dkim_key.rc == 0
       failed_when: dkim_key.rc != 0
