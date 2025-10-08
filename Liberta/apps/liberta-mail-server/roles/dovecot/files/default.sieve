@@ -1,4 +1,4 @@
-require ["fileinto", "mailbox", "vnd.dovecot.pipe"];
+require ["fileinto", "mailbox", "sieve_extprograms"];
 
 # Déplacement des spams dans Junk
 if header :contains "X-Spam-Flag" "YES" {
@@ -18,5 +18,5 @@ if header :contains "X-Spam" "Yes" {
 # banque.alias@liberta.email -> ./Banque/
 # banque-visa.alias@liberta.email -> ./Banque/Visa/
 # shopping-amazon-france.alias@liberta.email -> ./Shopping/Amazon/France/
-pipe :flags "user" "/etc/dovecot/sieve/mail_move_dynamic.py";
+extprogram :path "/etc/dovecot/sieve/mail_move_dynamic.py";
 stop;
