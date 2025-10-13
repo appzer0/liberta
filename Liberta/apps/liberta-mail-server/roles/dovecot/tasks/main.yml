@@ -122,10 +122,9 @@
     group: root
     mode: '0644'
 
-- name: Reload systemd to apply new service
-  command: systemctl daemon-reload
-  args:
-    warn: false
+- name: Make sure systemd is reloaded after editing our mail-process.service
+  ansible.builtin.systemd_service:
+    daemon_reload: true
 
 - name: Enable mail-process service
   systemd:
