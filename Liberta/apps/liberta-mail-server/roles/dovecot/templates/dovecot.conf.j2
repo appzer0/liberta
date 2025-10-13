@@ -155,28 +155,26 @@ userdb prefetch {
 }
 
 # Règles des plugins pour le quota et le chiffrement :
-plugin {
-	# Le quota par défaut si aucun paramètre ne figure dans le fichier des
-	# users. La corbeille a 10% de plus du total du quota pour permettre au
-	# user de nettoyer sa boite si elle est hors quota.
-	# Messages limités à 30 Mo max, mais la taille du SPAM est ignorée car
-	# nettoyé régulièrement :
-	quota = maildir:User quota
-	quota_rule = *:storage=5G
-	quota_rule2 = Trash:storage=+10%%
-	quota_rule3 = SPAM:ignore
-	quota_max_mail_size = 30M
-	quota_over_flag_value = TRUE
-	quota_grace = 10%%
-	quota_status_success = DUNNO
-	quota_status_nouser = DUNNO
-	quota_status_overquota = "552 5.2.2 Mailbox is full"
-	
-	# Règles du plugin mail_crypt (chiffrement du stockage des mails) :
-	mail_crypt_curve = secp521r1
-	mail_crypt_save_version = 2
-	crypt_user_key_require_encrypted = yes
-}
+# Le quota par défaut si aucun paramètre ne figure dans le fichier des
+# users. La corbeille a 10% de plus du total du quota pour permettre au
+# user de nettoyer sa boite si elle est hors quota.
+# Messages limités à 30 Mo max, mais la taille du SPAM est ignorée car
+# nettoyé régulièrement :
+quota = maildir:User quota
+quota_rule = *:storage=5G
+quota_rule2 = Trash:storage=+10%%
+quota_rule3 = SPAM:ignore
+quota_max_mail_size = 30M
+quota_over_flag_value = TRUE
+quota_grace = 10%%
+quota_status_success = DUNNO
+quota_status_nouser = DUNNO
+quota_status_overquota = "552 5.2.2 Mailbox is full"
+
+# Règles du plugin mail_crypt (chiffrement du stockage des mails) :
+mail_crypt_curve = secp521r1
+mail_crypt_save_version = 2
+crypt_user_key_require_encrypted = yes
 
 # Règles pour Sieve :
 sieve_pipe_bin_dir = /etc/dovecot/sieve
