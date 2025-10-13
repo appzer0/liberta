@@ -160,19 +160,16 @@ userdb prefetch {
 # user de nettoyer sa boite si elle est hors quota.
 # Messages limités à 30 Mo max, mais la taille du SPAM est ignorée car
 # nettoyé régulièrement :
-quota maildir:User quota {
-  storage = 5G
-  # La corbeille a 10% de plus que le quota principal
-  Trash_storage = +10%%
-  # Ignore la taille du dossier SPAM dans le quota
-  SPAM_ignore = yes
-
-  max_mail_size = 30M
-  over_flag_value = TRUE
-  grace = 10%%
-  status_success = DUNNO
-  status_nouser = DUNNO
-  status_overquota = "552 5.2.2 Mailbox is full"
+quota "User quota" {
+	storage = 5G
+	Trash_storage = +10%%
+	SPAM_ignore = yes
+	max_mail_size = 30M
+	over_flag_value = TRUE
+	grace = 10%%
+	status_success = DUNNO
+	status_nouser = DUNNO
+	status_overquota = "552 5.2.2 Mailbox is full"
 }
 
 # Règles du plugin mail_crypt (chiffrement du stockage des mails) :
