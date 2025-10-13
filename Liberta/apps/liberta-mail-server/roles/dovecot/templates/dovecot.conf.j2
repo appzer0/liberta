@@ -116,14 +116,14 @@ mail_gid=5000
 # Authentification via la base MySQL :
 passdb sql {
 	driver = sql
-	args = /etc/dovecot/dovecot-sql.conf.ext
+	passdb_sql_args = /etc/dovecot/dovecot-sql.conf.ext
 }
 userdb prefetch {
 	driver = prefetch
 }
 userdb sql {
 	driver = sql
-	args = /etc/dovecot/dovecot-sql.conf.ext
+	userdb_sql_args = /etc/dovecot/dovecot-sql.conf.ext
 }
 
 # Règles des plugins pour le quota et le chiffrement :
