@@ -72,7 +72,6 @@
   notify: restart dovecot
   loop:
     - dovecot.conf
-    - dovecot-sql.conf.ext
 
 - name: Fix ownership and mode of dovecot.conf
   file:
@@ -80,13 +79,6 @@
     owner: root
     group: "{{ vmail.group }}"
     mode: '0644'
-
-- name: Fix ownership and mode of dovecot-sql.conf.ext
-  file:
-    path: /etc/dovecot/dovecot-sql.conf.ext
-    owner: root
-    group: root
-    mode: '0640'
 
 - name: Create directory for Sieve scripts
   file:

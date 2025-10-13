@@ -1,7 +1,0 @@
-driver = mysql
-connect = host={{ mysql.mailserver.host }} dbname={{ mysql.mailserver.dbname }} user={{ mysql.mailserver.username }} password={{ mysql.mailserver.password }}
-default_pass_scheme = ARGON2ID
-
-iterate_query = SELECT `email` AS user FROM users;
-user_query = SELECT `email` AS user, '5000' AS userdb_uid, '5000' AS userdb_gid, CONCAT('*:storage=', `quota`) AS userdb_quota_rule FROM users WHERE email = '%u' AND active = '1';
-password_query = SELECT `email` AS user, `crypt` AS password, '%w' AS userdb_mail_crypt_private_password, '5000' AS userdb_uid, '5000' AS userdb_gid, CONCAT('*:storage=', `quota`) AS userdb_quota_rule FROM users WHERE email = '%u' AND active = '1';
