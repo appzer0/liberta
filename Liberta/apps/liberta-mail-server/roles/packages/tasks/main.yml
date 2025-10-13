@@ -3,8 +3,16 @@
   apt:
     update_cache: yes
     name:
+      - openssl
       - argon2
       - libsodium23
+      - gpg
+      - gpg-agent
+      - gpg-wks-client
+      - gpg-wks-server
+      - gpgconf
+      - gpgsm
+      - gpgv
       - certbot
       - pwgen
       - postfix

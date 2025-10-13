@@ -1,4 +1,4 @@
-require ["fileinto", "mailbox", "sieve_extprograms"];
+require ["fileinto", "mailbox"];
 
 # Déplacement des spams dans Junk
 if header :contains "X-Spam-Flag" "YES" {

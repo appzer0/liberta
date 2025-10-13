@@ -26,7 +26,7 @@
     state: directory
     owner: root
     group: bind
-    mode: "0755"
+    mode: "0775"
   notify: restart bind
   
 - name: Start and enable bind
