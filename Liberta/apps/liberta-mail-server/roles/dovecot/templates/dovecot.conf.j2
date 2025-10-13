@@ -158,13 +158,11 @@ userdb prefetch {
 # Le quota par défaut si aucun paramètre ne figure dans le fichier des
 # users. La corbeille a 10% de plus du total du quota pour permettre au
 # user de nettoyer sa boite si elle est hors quota.
-# Messages limités à 30 Mo max, mais la taille du SPAM est ignorée car
-# nettoyé régulièrement :
+# Messages limités à 30 Mo max :
 quota "User quota" {
-	storage = 5G
+	storage_size = 5G
 	Trash_storage = +10%%
-	SPAM_ignore = yes
-	max_mail_size = 30M
+	mail_size = 30M
 	over_flag_value = TRUE
 	grace = 10%%
 	status_success = DUNNO
@@ -244,6 +242,7 @@ namespace inbox {
 		auto = subscribe
 	}
 	mailbox "Junk" {
+		quota_ignore = yes
 		special_use = \Junk
 		auto = subscribe
 		autoexpunge = 60d
@@ -253,6 +252,8 @@ namespace inbox {
 		auto = subscribe
         }
 	mailbox "Trash" { 
+		quota_ignore = yes
+		quota_message_percentage = 110
 		special_use = \Trash
 		auto = subscribe
 		autoexpunge = 60d
