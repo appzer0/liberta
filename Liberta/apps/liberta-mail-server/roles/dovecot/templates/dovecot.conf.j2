@@ -124,7 +124,6 @@ mysql {{ mysql.mailserver.host }} {
 
 # La requête pour vérifier le mot de passe :
 passdb sql {
-	default_pass_scheme = ARGON2ID
 	query = SELECT `email` AS user, \
 		`crypt` AS password, \
 		'%{password}' AS userdb_crypt_user_key_password, \
