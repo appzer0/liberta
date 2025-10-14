@@ -57,7 +57,7 @@ protocol lmtp {
 # Emplacement des boites e-mail :
 mail_driver = maildir
 mail_path = {{ mail_data_rootdir }}/%{domain}/%{username}
-mail_home = %{home}/Maildir
+mail_home = {{ mail_data_rootdir }}/%{domain}/%{username}/Maildir
 
 # Emplacement des attributs de chaque boite mail :
 mail_attribute {
