@@ -8,8 +8,10 @@ acl goodclients {
 
 options {
     directory "/var/cache/bind";
-    recursion no;
+    recursion yes;
     allow-query { goodclients; };
+    allow-recursion { goodclients; };
+
     forwarders {
         {{ trusty_networks.dns_forwarded_ipv4[0] }};
         {{ trusty_networks.dns_forwarded_ipv4[1] }};
