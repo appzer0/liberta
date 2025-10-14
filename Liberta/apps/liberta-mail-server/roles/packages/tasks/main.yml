@@ -13,6 +13,8 @@
       - gpgconf
       - gpgsm
       - gpgv
+      - lua5.4
+      - lua-json
       - certbot
       - pwgen
       - postfix
@@ -21,6 +23,7 @@
       - dovecot-imapd
       - dovecot-lmtpd
       - dovecot-managesieved
+      - dovecot-auth-lua
       - rspamd
       - fail2ban
       - ca-certificates
