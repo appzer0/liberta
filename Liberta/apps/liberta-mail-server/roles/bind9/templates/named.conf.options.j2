@@ -1,7 +1,7 @@
 include "/etc/bind/rndc.key";
 
 acl goodclients {
-    "{{ trusty_networks.dns_trusty_network }}";
+    {{ trusty_networks.dns_trusty_network }};
     localhost;
     localnets;
 };
