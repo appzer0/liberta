@@ -56,8 +56,8 @@ protocol lmtp {
 
 # Emplacement des boites e-mail :
 mail_driver = maildir
-mail_path = {{ mail_data_rootdir }}/%{domain}/%{username}
-mail_home = {{ mail_data_rootdir }}/%{domain}/%{username}/Maildir
+mail_path = {{ mail_data_rootdir }}/%{user|domain}/%{user|username}
+mail_home = {{ mail_data_rootdir }}/%{user|domain}/%{user|username}/Maildir
 
 # Emplacement des attributs de chaque boite mail :
 mail_attribute {
@@ -130,7 +130,7 @@ passdb sql {
 		'5000' AS userdb_gid, \
 		CONCAT('*:storage=', `quota`) AS userdb_quota_rule \
 		FROM users \
-		WHERE email = '%u' \
+		WHERE email = '%{user}' \
 		AND active = '1';
 }
 
@@ -142,7 +142,7 @@ userdb sql {
 		'5000' AS userdb_gid, \
 		CONCAT('*:storage=', `quota`) AS userdb_quota_rule \
 		FROM users \
-		WHERE email = '%u' \
+		WHERE email = '%{user}' \
 		AND active = '1';
 
 	iterate_query = SELECT `email` AS user \
