@@ -200,11 +200,6 @@ service quota-status {
 	client_limit = 1
 }
 
-# Format des logs :
-login_log_format_elements = user=<%u> method=%m rip=%r lip=%l mpid=%e %c
-login_log_format = %$: %s
-deliver_log_format = msgid=%m: from=%f subject=%s size=%p %$
-
 # Stockage des mails via NFS (stockage ZFS) + indexation :
 mail_nfs_storage = yes
 lock_method = dotlock
