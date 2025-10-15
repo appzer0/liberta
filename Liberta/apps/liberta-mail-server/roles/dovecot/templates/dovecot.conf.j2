@@ -4,11 +4,6 @@ dovecot_storage_version = 2.4.1
 # On active les protocoles LMTP (pour l'interne) et IMAP :
 protocols = lmtp imap
 
-# Activation du plugin de gestion des quotas :
-mail_plugins {
-	quota = yes
-}
-
 # Configuration IMAP (désactivé) et IMAPS :
 service imap-login {
 	inet_listener imap {
