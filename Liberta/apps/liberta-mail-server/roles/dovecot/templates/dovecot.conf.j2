@@ -14,9 +14,8 @@ service imap-login {
 	}
 }
 
-# Protocole IMAP : contournement de certains bugs et contraintes
-# + quota + chiffrement :
-
+# Protocole IMAP : déplacements via Sieve + quota + chiffrement +
+# contournement de certains bugs et contraintes
 protocol imap {
 	mail_plugins {
 		quota = yes
@@ -26,12 +25,10 @@ protocol imap {
 	imap_client_workarounds = delay-newmail tb-extra-mailbox-sep
 }
 
-# Protocoles LDA/LMTP : activation quota + règles Sieve de déplacement
-# des Spams + chiffrement :
+# Protocoles LDA/LMTP : quota + chiffrement :
 protocol lda {
 	mail_plugins {
 		quota = yes
-		imap_sieve = yes
 		mail_crypt = yes
 	}
 }
@@ -40,7 +37,6 @@ lmtp_rcpt_check_quota = yes
 protocol lmtp {
 	mail_plugins {
 		quota = yes
-		imap_sieve = yes
 		mail_crypt = yes
   }
   postmaster_address = postmaster@{{ mail_domain }}
