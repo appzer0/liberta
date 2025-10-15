@@ -20,7 +20,7 @@ service imap-login {
 protocol imap {
 	mail_plugins {
 		quota = yes
-		sieve = yes
+		imap_sieve = yes
 		mail_crypt = yes
 	}
 	imap_client_workarounds = delay-newmail tb-extra-mailbox-sep
@@ -31,7 +31,7 @@ protocol imap {
 protocol lda {
 	mail_plugins {
 		quota = yes
-		sieve = yes
+		imap_sieve = yes
 		mail_crypt = yes
 	}
 }
@@ -40,7 +40,7 @@ lmtp_rcpt_check_quota = yes
 protocol lmtp {
 	mail_plugins {
 		quota = yes
-		sieve = yes
+		imap_sieve = yes
 		mail_crypt = yes
   }
   postmaster_address = postmaster@{{ mail_domain }}
