@@ -36,8 +36,8 @@
 
 - name: Import SQL schema into database (only if database is empty)
   shell: |
-    export MYSQL_OPT_SSL_MODE=DISABLE
-    mysql -h "{{ mysql.mailserver.host }}" \
+    mysql --ssl-mode=DISABLED \
+          -h "{{ mysql.mailserver.host }}" \
           -u "{{ mysql.mailserver.username }}" \
           -p"{{ mysql.mailserver.password }}" \
           "{{ mysql.mailserver.dbname }}" \
