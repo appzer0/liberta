@@ -24,8 +24,7 @@ CREATE TABLE `alias` (
   `destination` varchar(128) NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `source` (`source`,`destination`),
-  KEY `domain_id` (`domain_id`),
-  CONSTRAINT `alias_ibfk_1` FOREIGN KEY (`domain_id`) REFERENCES `domain` (`id`) ON DELETE CASCADE
+  KEY `domain_id` (`domain_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 
 --
@@ -35,13 +34,11 @@ CREATE TABLE `alias` (
 CREATE TABLE `users` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `domain_id` int(11) NOT NULL,
-  `email` varchar(128) NOT NULL DEFAULT '',
+  `email` varchar(128) NOT NULL UNIQUE DEFAULT '',
   `crypt` varchar(767) NOT NULL DEFAULT '',
   `quota` tinytext NOT NULL,
   `note` varchar(255) NOT NULL DEFAULT '',
   `active` tinyint(4) NOT NULL DEFAULT 1,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `email` (`email`),
-  KEY `domain_id` (`domain_id`),
-  CONSTRAINT `users_ibfk_1` FOREIGN KEY (`domain_id`) REFERENCES `domain` (`id`) ON DELETE CASCADE
+  KEY `domain_id` (`domain_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;

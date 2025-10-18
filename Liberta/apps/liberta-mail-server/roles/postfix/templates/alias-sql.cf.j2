@@ -2,4 +2,4 @@ user = {{ mysql.mailserver.username }}
 password = {{ mysql.mailserver.password }}
 dbname = {{ mysql.mailserver.dbname }}
 hosts = {{ mysql.mailserver.host }}
-query = SELECT destination FROM alias WHERE source = CONCAT(SUBSTRING_INDEX(SUBSTRING_INDEX('%s', '@', 1), '.', -1), '@{{ mail_domain }}') LIMIT 1;
+query = SELECT destination FROM alias WHERE source = '%s' LIMIT 1;

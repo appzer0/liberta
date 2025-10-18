@@ -11,6 +11,7 @@
     login_user: "{{ mysql.mailserver.username }}"
     login_password: "{{ mysql.mailserver.password }}"
     name: "{{ mysql.mailserver.dbname }}"
+    check_hostname: false
     state: present
 
 - name: Check how many tables are present in the database
@@ -20,6 +21,7 @@
     login_password: "{{ mysql.mailserver.password }}"
     login_db: "{{ mysql.mailserver.dbname }}"
     query: "SHOW TABLES;"
+    check_hostname: false
   register: db_tables
   changed_when: false
 
@@ -40,6 +42,7 @@
     db: "{{ mysql.mailserver.dbname }}"
     state: import
     target: /tmp/schema.sql
+    check_hostname: false
   when:
     - db_tables is defined
     - (db_tables.skipped is not defined) or (db_tables.skipped == false)
@@ -72,6 +75,7 @@
     login_db: "{{ mysql.mailserver.dbname }}"
     query: "INSERT IGNORE INTO `domain` (`id`, `domain`, `transport`) VALUES (%s, %s, %s)"
     positional_args: "{{ item }}"
+    check_hostname: false
   loop: "{{ domaindata }}"
 
 - name: Define usersdata list
@@ -96,4 +100,5 @@
     login_db: "{{ mysql.mailserver.dbname }}"
     query: "INSERT IGNORE INTO `users` (`id`, `domain_id`, `email`, `crypt`, `quota`, `note`, `active`) VALUES (%s, %s, %s, %s, %s, %s, %s)"
     positional_args: "{{ item }}"
+    check_hostname: false
   loop: "{{ usersdata }}"
