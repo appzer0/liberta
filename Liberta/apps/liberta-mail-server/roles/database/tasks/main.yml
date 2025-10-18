@@ -44,6 +44,7 @@
     target: /tmp/schema.sql
     check_hostname: false
     use_shell: true
+    ssl_mode: disable
   when:
     - db_tables is defined
     - (db_tables.skipped is not defined) or (db_tables.skipped == false)
