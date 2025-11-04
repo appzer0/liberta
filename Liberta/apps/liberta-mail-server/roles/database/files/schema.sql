@@ -37,7 +37,6 @@ CREATE TABLE `users` (
   `email` varchar(128) NOT NULL UNIQUE DEFAULT '',
   `crypt` varchar(767) NOT NULL DEFAULT '',
   `quota` tinytext NOT NULL,
-  `note` varchar(255) NOT NULL DEFAULT '',
   `active` tinyint(4) NOT NULL DEFAULT 1,
   PRIMARY KEY (`id`),
   KEY `domain_id` (`domain_id`)

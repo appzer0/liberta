@@ -14,40 +14,198 @@
     check_hostname: false
     state: present
 
-- name: Check how many tables are present in the database
+- name: Create table pymailadmin_sessions
   community.mysql.mysql_query:
     login_host: "{{ mysql.mailserver.host }}"
     login_user: "{{ mysql.mailserver.username }}"
     login_password: "{{ mysql.mailserver.password }}"
     login_db: "{{ mysql.mailserver.dbname }}"
-    query: "SHOW TABLES;"
     check_hostname: false
-  register: db_tables
-  changed_when: false
+    query: |
+      CREATE TABLE IF NOT EXISTS `pymailadmin_sessions` (
+          `id` varchar(128) NOT NULL,
+          `data` text NOT NULL,
+          `expires_at` datetime NOT NULL,
+          PRIMARY KEY (`id`),
+          INDEX `idx_expires` (`expires_at`)
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 
-- name: Debug db_tables content
-  debug:
-    var: db_tables
+- name: Create table pymailadmin_rate_limits
+  community.mysql.mysql_query:
+    login_host: "{{ mysql.mailserver.host }}"
+    login_user: "{{ mysql.mailserver.username }}"
+    login_password: "{{ mysql.mailserver.password }}"
+    login_db: "{{ mysql.mailserver.dbname }}"
+    check_hostname: false
+    query: |
+      CREATE TABLE IF NOT EXISTS `pymailadmin_rate_limits` (
+          `id` int(11) NOT NULL AUTO_INCREMENT,
+          `key` varchar(64) NOT NULL,
+          `attempts` int(11) NOT NULL DEFAULT 0,
+          `last_attempt` datetime NOT NULL,
+          `blocked_until` datetime DEFAULT NULL,
+          PRIMARY KEY (`id`),
+          UNIQUE KEY `idx_key` (`key`),
+          INDEX `idx_blocked` (`blocked_until`)
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 
-- name: Copy MySQL database schema.sql into /tmp
-  copy:
-    src: schema.sql
-    dest: /tmp/schema.sql
+- name: Create table pymailadmin_admin_registrations
+  community.mysql.mysql_query:
+    login_host: "{{ mysql.mailserver.host }}"
+    login_user: "{{ mysql.mailserver.username }}"
+    login_password: "{{ mysql.mailserver.password }}"
+    login_db: "{{ mysql.mailserver.dbname }}"
+    check_hostname: false
+    query: |
+      CREATE TABLE IF NOT EXISTS `pymailadmin_admin_registrations` (
+        `id` int(11) NOT NULL AUTO_INCREMENT,
+        `email` varchar(128) NOT NULL UNIQUE,
+        `password_hash` varchar(255) NOT NULL,
+        `reason` text NOT NULL,
+        `confirmation_hash` varchar(64) NOT NULL UNIQUE,
+        `expires_at` datetime NOT NULL,
+        `confirmed` tinyint(1) NOT NULL DEFAULT 0,
+        PRIMARY KEY (`id`)
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci
 
-- name: Import SQL schema into database (only if database is empty)
-  shell: |
-    mysql --ssl=0 \
-          -h "{{ mysql.mailserver.host }}" \
-          -u "{{ mysql.mailserver.username }}" \
-          -p"{{ mysql.mailserver.password }}" \
-          "{{ mysql.mailserver.dbname }}" \
-          < /tmp/schema.sql
-  args:
-    executable: /bin/bash
-  when:
-    - db_tables is defined
-    - (db_tables.skipped is not defined) or (db_tables.skipped == false)
-    - db_tables.query_result[0] | length == 0
+- name: Create table pymailadmin_admin_users
+  community.mysql.mysql_query:
+    login_host: "{{ mysql.mailserver.host }}"
+    login_user: "{{ mysql.mailserver.username }}"
+    login_password: "{{ mysql.mailserver.password }}"
+    login_db: "{{ mysql.mailserver.dbname }}"
+    check_hostname: false
+    query: |
+      CREATE TABLE IF NOT EXISTS `pymailadmin_admin_users` (
+        `id` int(11) NOT NULL AUTO_INCREMENT,
+        `email` varchar(128) NOT NULL UNIQUE,
+        `password_hash` varchar(255) NOT NULL,
+        `role` ENUM('user', 'admin', 'super_admin') DEFAULT 'user' NOT NULL,
+        `active` tinyint(1) NOT NULL DEFAULT 0,
+        PRIMARY KEY (`id`)
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci
+
+- name: Create table domain
+  community.mysql.mysql_query:
+    login_host: "{{ mysql.mailserver.host }}"
+    login_user: "{{ mysql.mailserver.username }}"
+    login_password: "{{ mysql.mailserver.password }}"
+    login_db: "{{ mysql.mailserver.dbname }}"
+    check_hostname: false
+    query: |
+      CREATE TABLE IF NOT EXISTS `domain` (
+        `id` int(11) NOT NULL AUTO_INCREMENT,
+        `domain` varchar(64) NOT NULL,
+        `transport` varchar(200) NOT NULL,
+        PRIMARY KEY (`id`)
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci
+
+- name: Create table users
+  community.mysql.mysql_query:
+    login_host: "{{ mysql.mailserver.host }}"
+    login_user: "{{ mysql.mailserver.username }}"
+    login_password: "{{ mysql.mailserver.password }}"
+    login_db: "{{ mysql.mailserver.dbname }}"
+    check_hostname: false
+    query: |
+      CREATE TABLE IF NOT EXISTS `users` (
+        `id` int(11) NOT NULL AUTO_INCREMENT,
+        `domain_id` int(11) NOT NULL,
+        `email` varchar(128) NOT NULL UNIQUE DEFAULT '',
+        `crypt` varchar(767) NOT NULL DEFAULT '',
+        `quota` tinytext NOT NULL,
+        `active` tinyint(4) NOT NULL DEFAULT 1,
+        PRIMARY KEY (`id`),
+        KEY `domain_id` (`domain_id`)
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci
+
+- name: Create table pymailadmin_ownerships
+  community.mysql.mysql_query:
+    login_host: "{{ mysql.mailserver.host }}"
+    login_user: "{{ mysql.mailserver.username }}"
+    login_password: "{{ mysql.mailserver.password }}"
+    login_db: "{{ mysql.mailserver.dbname }}"
+    check_hostname: false
+    query: |
+      CREATE TABLE IF NOT EXISTS pymailadmin_ownerships (
+          id INT AUTO_INCREMENT PRIMARY KEY,
+          admin_user_id INT NOT NULL,
+          user_id INT NOT NULL,
+          is_primary TINYINT(1) DEFAULT 0,
+          created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+          UNIQUE KEY unique_ownership (admin_user_id, user_id),
+          FOREIGN KEY (admin_user_id) REFERENCES pymailadmin_admin_users(id) ON DELETE CASCADE,
+          FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+          INDEX idx_admin_user (admin_user_id),
+          INDEX idx_user (user_id)
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+
+- name: Create table pymailadmin_recovery_keys
+  community.mysql.mysql_query:
+    login_host: "{{ mysql.mailserver.host }}"
+    login_user: "{{ mysql.mailserver.username }}"
+    login_password: "{{ mysql.mailserver.password }}"
+    login_db: "{{ mysql.mailserver.dbname }}"
+    check_hostname: false
+    query: |
+      CREATE TABLE IF NOT EXISTS `pymailadmin_recovery_keys` (
+        `id` int(11) NOT NULL AUTO_INCREMENT,
+        `user_id` int(11) NOT NULL,
+        `recovery_key` varchar(255) NOT NULL UNIQUE,
+        `expiry` datetime NOT NULL,
+        PRIMARY KEY (`id`),
+        FOREIGN KEY (`user_id`) REFERENCES users(id) ON DELETE CASCADE
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci
+
+- name: Create table pymailadmin_rekey_pending
+  community.mysql.mysql_query:
+    login_host: "{{ mysql.mailserver.host }}"
+    login_user: "{{ mysql.mailserver.username }}"
+    login_password: "{{ mysql.mailserver.password }}"
+    login_db: "{{ mysql.mailserver.dbname }}"
+    check_hostname: false
+    query: |
+      CREATE TABLE IF NOT EXISTS pymailadmin_rekey_pending (
+          id INT AUTO_INCREMENT PRIMARY KEY,
+          email VARCHAR(255) NOT NULL UNIQUE,
+          created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+          token VARCHAR(64) NOT NULL
+      )
+
+- name: Create table pymailadmin_deletion_pending
+  community.mysql.mysql_query:
+    login_host: "{{ mysql.mailserver.host }}"
+    login_user: "{{ mysql.mailserver.username }}"
+    login_password: "{{ mysql.mailserver.password }}"
+    login_db: "{{ mysql.mailserver.dbname }}"
+    check_hostname: false
+    query: |
+      CREATE TABLE IF NOT EXISTS pymailadmin_deletion_pending (
+          id INT AUTO_INCREMENT PRIMARY KEY,
+          email VARCHAR(255) NOT NULL UNIQUE,
+          created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+          token VARCHAR(64) NOT NULL,
+          confirmed TINYINT(1) NOT NULL DEFAULT 0,
+          INDEX idx_created (created_at)
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+
+- name: Create table alias
+  community.mysql.mysql_query:
+    login_host: "{{ mysql.mailserver.host }}"
+    login_user: "{{ mysql.mailserver.username }}"
+    login_password: "{{ mysql.mailserver.password }}"
+    login_db: "{{ mysql.mailserver.dbname }}"
+    check_hostname: false
+    query: |
+      CREATE TABLE IF NOT EXISTS `alias` (
+        `id` int(11) NOT NULL AUTO_INCREMENT,
+        `domain_id` int(11) NOT NULL,
+        `source` varchar(128) NOT NULL,
+        `destination` varchar(128) NOT NULL,
+        PRIMARY KEY (`id`),
+        UNIQUE KEY `source` (`source`,`destination`),
+        KEY `domain_id` (`domain_id`)
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci
 
 - name: Define domaindata list
   set_fact:
@@ -74,32 +232,44 @@
     login_user: "{{ mysql.mailserver.username }}"
     login_password: "{{ mysql.mailserver.password }}"
     login_db: "{{ mysql.mailserver.dbname }}"
-    query: "INSERT IGNORE INTO `domain` (`id`, `domain`, `transport`) VALUES (%s, %s, %s)"
+    query: "INSERT INTO `domain` (`id`, `domain`, `transport`) VALUES (%s, %s, %s) ON DUPLICATE KEY UPDATE `transport` = VALUES(`transport`)"
     positional_args: "{{ item }}"
     check_hostname: false
   loop: "{{ domaindata }}"
+  when: item[0] != ""
 
-- name: Define usersdata list
-  set_fact:
-    usersdata:
-      - ["", "1", "mailadmin@liberta.email", "{ARGON2ID}$argon2id$v=19$m=65536,t=3,p=1$k7Gu075jXHgWz+Jdk1d3uaFnuKpU1v/pIcMBICLop0dB52/BeI6rW+gCKtELyJ6NuuUg1PRgE9EIw3qanVuAew$zl3Viem3SEELMFpKXyLNMC/TJDL3+mqZVcrr1CBGZJU", "10G", "@!M!@", "1"]
-      - ["", "1", "postmaster@liberta.email", "{ARGON2ID}$argon2id$v=19$m=65536,t=3,p=1$udeJKO26DAfqPpeiqgUAOw$hxk9OtvXjXhKyTgHxVaTmi8AijkA5OoHLHbiiOgj29g", "10G", "!M!", "1"]
-      - ["", "1", "admin@liberta.email", "{ARGON2ID}$argon2id$v=19$m=65536,t=3,p=1$b23pMd/fDHOmZUwYccWzNQ$F1dihKzLW/PjOX0N7z/RnQV1XZ7BNaHn1KfIaPmJDFE", "10G", "!B!", "1"]
-      - ["", "1", "root@liberta.email", "{ARGON2ID}$argon2id$v=19$m=65536,t=3,p=1$ArC504cocbCR3CTcy9pK5Q$5aTid+TCm3qBd/6+KOXUPQgmwbjxqcYQ7/hnjXSCcss", "10G", "!BBB!", "1"]
-      - ["", "1", "abuse@liberta.email", "{ARGON2ID}$argon2id$v=19$m=65536,t=3,p=1$BLaU9+MAYLWbAOa44waFDw$LyZiVsovAf+hpwW6wTW3j19kQrstYjBf65fDZUI/RNI", "10G", "!MMM!", "1"]
-      - ["", "1", "liberta@liberta.email", "{ARGON2ID}$argon2id$v=19$m=65536,t=3,p=1$OyN7Ghl0lWV+sdCk5Iqvow$jwCz7cgF7vNkZzNg+1paXH9XjRuf12iH7z63jvj2spo", "10G", "!BBB!", "1"]
-      - ["", "1", "appzer0@liberta.email", "{ARGON2ID}$argon2id$v=19$m=65536,t=3,p=1$nH2Nnn+QNEXzYjVdbRHd1g$Fmxc8kKMo7bmADU74HzsENCZQi0TfckB8sny51NTh7Q", "10G", "!BBB!", "1"]
-      - ["", "1", "libertadmin@liberta.email", "{ARGON2ID}$argon2id$v=19$m=65536,t=3,p=1$O/AqAm0Z0UVJRJdUUpZmJA$qzkWpgbiQX10IzOVDOwQqGGlfcjf5CUaIBChTEadz44", "10G", "!BBB!", "1"]
-      - ["", "1", "info@liberta.email", "{ARGON2ID}$argon2id$v=19$m=65536,t=3,p=1$8UxWFelI9GwkQr8BxYcbvg$W2a/M0mjC7dY9q70e/mTthfuSvSB7E0zn4hDcnP9F8M", "10G", "!BBB!", "1"]
-      - ["", "1", "liberta@liberta.email", "{ARGON2ID}$argon2id$v=19$m=65536,t=3,p=1$/k+sSIrjR3xXqckR+lU+cw$7jo8U3URCbH20ghVLChPEz0PPxFoer6qyKyORfQOBTk", "10G", "!BBB!", "1"]
-
-- name: Add rows out of a loop to users table (idempotent)
+- name: Insert domain records without explicit ID (idempotent)
   community.mysql.mysql_query:
     login_host: "{{ mysql.mailserver.host }}"
     login_user: "{{ mysql.mailserver.username }}"
     login_password: "{{ mysql.mailserver.password }}"
     login_db: "{{ mysql.mailserver.dbname }}"
-    query: "INSERT IGNORE INTO `users` (`id`, `domain_id`, `email`, `crypt`, `quota`, `note`, `active`) VALUES (%s, %s, %s, %s, %s, %s, %s)"
-    positional_args: "{{ item }}"
+    query: "INSERT IGNORE INTO `domain` (`domain`, `transport`) VALUES (%s, %s)"
+    positional_args: "{{ [item[1], item[2]] }}"
+    check_hostname: false
+  loop: "{{ domaindata }}"
+  when: item[0] == ""
+
+- name: Define usersdata list
+  set_fact:
+    usersdata:
+      - ["", "1", "mailadmin@liberta.email", "{ARGON2ID}$argon2id$v=19$m=65536,t=3,p=1$k7Gu075jXHgWz+Jdk1d3uaFnuKpU1v/pIcMBICLop0dB52/BeI6rW+gCKtELyJ6NuuUg1PRgE9EIw3qanVuAew$zl3Viem3SEELMFpKXyLNMC/TJDL3+mqZVcrr1CBGZJU", "10G", "1"]
+      - ["", "1", "postmaster@liberta.email", "{ARGON2ID}$argon2id$v=19$m=65536,t=3,p=1$udeJKO26DAfqPpeiqgUAOw$hxk9OtvXjXhKyTgHxVaTmi8AijkA5OoHLHbiiOgj29g", "10G", "1"]
+      - ["", "1", "admin@liberta.email", "{ARGON2ID}$argon2id$v=19$m=65536,t=3,p=1$b23pMd/fDHOmZUwYccWzNQ$F1dihKzLW/PjOX0N7z/RnQV1XZ7BNaHn1KfIaPmJDFE", "10G", "1"]
+      - ["", "1", "root@liberta.email", "{ARGON2ID}$argon2id$v=19$m=65536,t=3,p=1$ArC504cocbCR3CTcy9pK5Q$5aTid+TCm3qBd/6+KOXUPQgmwbjxqcYQ7/hnjXSCcss", "10G", "1"]
+      - ["", "1", "abuse@liberta.email", "{ARGON2ID}$argon2id$v=19$m=65536,t=3,p=1$BLaU9+MAYLWbAOa44waFDw$LyZiVsovAf+hpwW6wTW3j19kQrstYjBf65fDZUI/RNI", "10G", "1"]
+      - ["", "1", "liberta@liberta.email", "{ARGON2ID}$argon2id$v=19$m=65536,t=3,p=1$OyN7Ghl0lWV+sdCk5Iqvow$jwCz7cgF7vNkZzNg+1paXH9XjRuf12iH7z63jvj2spo", "10G", "1"]
+      - ["", "1", "appzer0@liberta.email", "{ARGON2ID}$argon2id$v=19$m=65536,t=3,p=1$nH2Nnn+QNEXzYjVdbRHd1g$Fmxc8kKMo7bmADU74HzsENCZQi0TfckB8sny51NTh7Q", "10G", "1"]
+      - ["", "1", "libertadmin@liberta.email", "{ARGON2ID}$argon2id$v=19$m=65536,t=3,p=1$O/AqAm0Z0UVJRJdUUpZmJA$qzkWpgbiQX10IzOVDOwQqGGlfcjf5CUaIBChTEadz44", "10G", "1"]
+      - ["", "1", "info@liberta.email", "{ARGON2ID}$argon2id$v=19$m=65536,t=3,p=1$8UxWFelI9GwkQr8BxYcbvg$W2a/M0mjC7dY9q70e/mTthfuSvSB7E0zn4hDcnP9F8M", "10G", "1"]
+
+- name: Add rows to users table (idempotent with email as unique key)
+  community.mysql.mysql_query:
+    login_host: "{{ mysql.mailserver.host }}"
+    login_user: "{{ mysql.mailserver.username }}"
+    login_password: "{{ mysql.mailserver.password }}"
+    login_db: "{{ mysql.mailserver.dbname }}"
+    query: "INSERT INTO `users` (`domain_id`, `email`, `crypt`, `quota`, `active`) VALUES (%s, %s, %s, %s, %s) ON DUPLICATE KEY UPDATE `domain_id` = VALUES(`domain_id`)"
+    positional_args: "{{ [item[1], item[2], item[3], item[4], item[5]] }}"
     check_hostname: false
   loop: "{{ usersdata }}"

@@ -2,4 +2,4 @@ user = {{ mysql.mailserver.username }}
 password = {{ mysql.mailserver.password }}
 dbname = {{ mysql.mailserver.dbname }}
 hosts = {{ mysql.mailserver.host }}
-query = SELECT `email` FROM users WHERE email='%s';
+query = SELECT `email` FROM users WHERE `email`='%s' UNION SELECT `source` FROM alias WHERE `source`='%s'
