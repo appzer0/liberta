@@ -212,11 +212,18 @@
     domaindata:
       - ["1", "liberta.email", ""]
       - ["2", "liberta.vip", ""]
-      - ["", "orange.fr", "slow:"]
+      - ["", "free.fr", "slow:"]
+      - ["", "alice.fr", "slow:"]
       - ["", "yahoo.fr", "yahoo:"]
       - ["", "yahoo.com", "yahoo:"]
-      - ["", "wanadoo.fr", "slow:"]
+      - ["", "ymail.com", "yahoo:"]
+      - ["", "rocketmail.com", "yahoo:"]
+      - ["", "orange.fr", "slow:"]
       - ["", "orange.com", "slow:"]
+      - ["", "wanadoo.fr", "slow:"]
+      - ["", "wanadoo.com", "slow:"]
+      - ["", "orange.com", "slow:"]
+      - ["", "nordnet.fr", "slow:"]
       - ["", "gmail.com", "slow:"]
       - ["", "gmail.fr", "slow:"]
       - ["", "hotmail.com", "slow:"]
@@ -225,6 +232,7 @@
       - ["", "outlook.fr", "slow:"]
       - ["", "live.com", "slow:"]
       - ["", "live.fr", "slow:"]
+      - ["", "yopmail.com", "slow:"]
 
 - name: Insert each record into domain table (idempotent)
   community.mysql.mysql_query:
@@ -237,18 +245,6 @@
     check_hostname: false
   loop: "{{ domaindata }}"
   when: item[0] != ""
-
-- name: Insert domain records without explicit ID (idempotent)
-  community.mysql.mysql_query:
-    login_host: "{{ mysql.mailserver.host }}"
-    login_user: "{{ mysql.mailserver.username }}"
-    login_password: "{{ mysql.mailserver.password }}"
-    login_db: "{{ mysql.mailserver.dbname }}"
-    query: "INSERT IGNORE INTO `domain` (`domain`, `transport`) VALUES (%s, %s)"
-    positional_args: "{{ [item[1], item[2]] }}"
-    check_hostname: false
-  loop: "{{ domaindata }}"
-  when: item[0] == ""
 
 - name: Define usersdata list
   set_fact:

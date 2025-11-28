@@ -25,7 +25,8 @@
     dest: /etc/rspamd/local.d/worker-normal.inc
 
 - name: First hash the rspamd web interface password
-  shell: "rspamadm pw -p {{ rspamd_web_access }}"
+  shell: >
+    rspamadm pw -p {{ rspamd_web_access }}
   register: rspamd_web_access_hashed
   changed_when: false
 
