@@ -15,21 +15,25 @@ service imap-login {
 }
 
 # Protocole IMAP : déplacements via Sieve + quota + chiffrement +
-# contournement de certains bugs et contraintes
+# recherche textuelle + contournement de certains bugs et contraintes
 protocol imap {
 	mail_plugins {
 		quota = yes
 		imap_sieve = yes
 		mail_crypt = yes
+		fts = yes
+		fts-xapian = yes
 	}
 	imap_client_workarounds = delay-newmail tb-extra-mailbox-sep
 }
 
-# Protocoles LDA/LMTP : quota + chiffrement :
+# Protocoles LDA/LMTP : quota + chiffrement + recherche textuelle :
 protocol lda {
 	mail_plugins {
 		quota = yes
 		mail_crypt = yes
+		fts = yes
+		fts-xapian = yes
 	}
 }
 
@@ -38,6 +42,8 @@ protocol lmtp {
 	mail_plugins {
 		quota = yes
 		mail_crypt = yes
+		fts = yes
+		fts-xapian = yes
   }
   postmaster_address = postmaster@{{ mail_domain }}
 }
@@ -151,9 +157,22 @@ quota "User quota" {
 	quota_exceeded_message = "552 5.2.2 Mailbox is full"
 }
 
-# Règles du plugin mail_crypt (chiffrement du stockage des mails) :
+# Règles du plugin mail-crypt (chiffrement du stockage des mails) :
 crypt_user_key_curve = secp521r1
 crypt_user_key_require_encrypted = yes
+
+# Règles du plugin pour la recherche textuelle avec ftp-xapian :
+fts xapian {
+	verbose = 0
+	maxthreads = 4
+	partial = 3
+}
+fts_autoindex = yes
+
+# Langue obligatoire pour dovecot bien qu'inutile pour fts-xapian :
+language "en" {
+	default = yes
+}
 
 # Règles pour Sieve :
 sieve_pipe_bin_dir = /etc/dovecot/sieve
@@ -246,3 +265,20 @@ namespace inbox {
 # On les abonne aussi aux sous-dossiers perso :
 lda_mailbox_autosubscribe = yes
 
+# On active l'API HTTP de doveadm sur le port exposé 8666 :
+doveadm_api_key = {{ doveadm_api_key }}
+
+service doveadm {
+	unix_listener doveadm-server {
+		user = vmail
+	}
+	
+	inet_listener {
+		port = 2425
+	}
+	
+	inet_listener http {
+		port = 8666
+		ssl = yes
+	}
+}

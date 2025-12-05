@@ -240,7 +240,10 @@
     login_user: "{{ mysql.mailserver.username }}"
     login_password: "{{ mysql.mailserver.password }}"
     login_db: "{{ mysql.mailserver.dbname }}"
-    query: "INSERT INTO `domain` (`id`, `domain`, `transport`) VALUES (%s, %s, %s) ON DUPLICATE KEY UPDATE `transport` = VALUES(`transport`)"
+    query: |
+      INSERT INTO `domain` (`id`, `domain`, `transport`)
+        VALUES (%s, %s, %s)
+        ON DUPLICATE KEY UPDATE `transport` = VALUES(`transport`)
     positional_args: "{{ item }}"
     check_hostname: false
   loop: "{{ domaindata }}"
@@ -259,13 +262,16 @@
       - ["", "1", "libertadmin@liberta.email", "{ARGON2ID}$argon2id$v=19$m=65536,t=3,p=1$O/AqAm0Z0UVJRJdUUpZmJA$qzkWpgbiQX10IzOVDOwQqGGlfcjf5CUaIBChTEadz44", "10G", "1"]
       - ["", "1", "info@liberta.email", "{ARGON2ID}$argon2id$v=19$m=65536,t=3,p=1$8UxWFelI9GwkQr8BxYcbvg$W2a/M0mjC7dY9q70e/mTthfuSvSB7E0zn4hDcnP9F8M", "10G", "1"]
 
-- name: Add rows to users table (idempotent with email as unique key)
+- name: Add rows to users table
   community.mysql.mysql_query:
     login_host: "{{ mysql.mailserver.host }}"
     login_user: "{{ mysql.mailserver.username }}"
     login_password: "{{ mysql.mailserver.password }}"
     login_db: "{{ mysql.mailserver.dbname }}"
-    query: "INSERT INTO `users` (`domain_id`, `email`, `crypt`, `quota`, `active`) VALUES (%s, %s, %s, %s, %s) ON DUPLICATE KEY UPDATE `domain_id` = VALUES(`domain_id`)"
+    query: |
+      INSERT INTO `users` (`domain_id`, `email`, `crypt`, `quota`, `active`)
+        VALUES (%s, %s, %s, %s, %s)
+        ON DUPLICATE KEY UPDATE `domain_id` = VALUES(`domain_id`)
     positional_args: "{{ [item[1], item[2], item[3], item[4], item[5]] }}"
     check_hostname: false
   loop: "{{ usersdata }}"

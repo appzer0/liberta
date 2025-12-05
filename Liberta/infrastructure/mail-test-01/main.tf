@@ -44,15 +44,16 @@ variable "dns_address3" {
 
 variable "ssh_public_key" {
   description = "Trusty SSH public key"
-  default = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQC0F6sIIU+GCjrDDhFvy7WfAqpoYMr1chtsigPyRWDVm2ZONG7C020vQReGn9ykvwDLsSEXIusncopfB2qqziGa+HhWWG8Al4RRUEbFemJnL3O7S3Zx48cwYW629WB8n+VZNjFw2P4am5LFpHrL+VubjdyldW3nw39P0FH8tVqA0K3ODW0c+HhoIf7sfk9fd86MpObTx7VXS0yfF/PCucTLGF9MKxXO1wZ+rWibTcyk2CeRLTnGii5y4EjEw8MIw/cd5vnYthckHu/Yc1iDVvxpZ3GqVz9w7oO77ANqeaIJHTCfV2htiaWM9APpf2IIaxKigsTRIXn233I6X63GBDgq1kLVKX+CNYbFXLWvJ43By/E5v5L+kmjnGJa+z3LzztUHu/6Eq0E+vH4e7p7jpHkiK8Z/kn6efJCu6/J0fwKCWSpaEiCo3sLPp5fUBCdpWbxWQ09IzbK/op9yfGX1KRbWLDgTNyRATCucFhQg3LyfbdFDQkGIzVOFYV87oi6Wvok= root@hypervisor-01"
+  default = default = file("/root/.ssh/id_rsa.pub")
   type = string
 }
 
 variable "appzer0_public_key" {
   description = "appzer0 Trusty SSH public key"
-  default = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQCVNmxpfgOGD+BS7pEAs/55GbYfoIRA+W/hswep/taZ9L6QBaQjvX9Rc1UgCTS7bn3B2qbgM6WGw1IUaA9JxaAvmxoumuRoqUxKh71BDL5yKys2QoUkjbUCmKFJk1gBuvutLxoCbQGebSPHFGdfLsYSivJlyts7Hj6WuKWU7iVMC2g64GxvMfUqunJxt2wQ+TdphXV9Fi2Gy9k7wZf3AKa19dxde7MMX379dDPxPPTEE6tdC2XiFu1/lt1UcRMxV8VZgcZW4ksprd9Q8t2zJHVvK3nK0m72z/3oEskuvt2pVP++xUi7RpJX94vsgxdwHjkRiODgYCuD69kOqfOEaAwnCbneBx6wthL5UuNl/StAefdplixQm+xKa4mkOZvyKRgVb7p9VfuAWkid9QlqI+r2ppR6knzAMDUzY1LY4KD1MRYbglwNFqAgrJS58jB9qVxyB7Sa3q1IZYel2ThE3r0WVxBmQqEwa/8ePoX7AM+8714NEydZLimWwCarBVRZHV8= appzer0@hypervisor-01"
+  default = file("/home/appzer0/.ssh/id_rsa.pub")
   type = string
 }
+  
 # A local resource volume, raw format is needed on our ZFS filesystem.
 # Note that libvirt provider needs us to put two resources as we need
 # bigger space than the one from the raw image provided by Debian.
@@ -105,6 +106,7 @@ data template_file "user_data" {
     hostname = var.hostname
   }
 }
+
 # cloud-init settings (network-related)
 data template_file "network_config" {
   template = file("${path.module}/network_config.cfg")

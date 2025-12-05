@@ -6,15 +6,6 @@
       - openssl
       - argon2
       - libsodium23
-      - gpg
-      - gpg-agent
-      - gpg-wks-client
-      - gpg-wks-server
-      - gpgconf
-      - gpgsm
-      - gpgv
-      - lua5.4
-      - lua-json
       - certbot
       - pwgen
       - postfix
@@ -23,7 +14,7 @@
       - dovecot-imapd
       - dovecot-lmtpd
       - dovecot-managesieved
-      - dovecot-auth-lua
+      - dovecot-fts-xapian
       - rspamd
       - fail2ban
       - ca-certificates
@@ -36,7 +27,6 @@
       - bind9-host
       - bind9-utils
       - python3-argon2
-      - python3-argon2-cffi
       - python3-inotify
       - python3-pymysql
 
